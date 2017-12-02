@@ -10,7 +10,8 @@ def startServer():
 	HOST = '0.0.0.0'
 	PORT = 47808
 	server_address = (HOST, PORT)
-	print ('Starting Automation Server on %s port %s' % server_address)
+	logEvent('Starting Automation Server on %s port %s' % server_address)
+	
 	sock.bind(server_address)
 
 	# Listen for incoming connections
@@ -47,8 +48,10 @@ def startServer():
 
 
 def logEvent(msg):
+	eventtime=time.asctime( time.localtime(time.time()) )
+	print (msg)
 	file = open('testfile.txt','a+')
-	file.write(str(msg))
+	file.write(eventtime + str(msg) + "\n")
 	file.close()
 
 def interpert (data):
