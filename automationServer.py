@@ -3,7 +3,6 @@
 import socket
 import time
 def startServer():
-	print ("Hello Wor")
 	# Create a TCP/IP socket
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -30,7 +29,8 @@ def startServer():
 				eventtime=time.asctime( time.localtime(time.time()) )
 				print ('    ',eventtime,'received "%s"' % data)
 				if data:
-					#interpert (data)
+					interpert (data)
+					logEvent(data)
 					print ('      sending data back to the client')
 					connection.sendall(data)
 				else:
@@ -39,6 +39,40 @@ def startServer():
 		finally:
 			# Clean up the connection
 			connection.close()
+
+
+
+
+
+
+
+def logEvent(msg):
+	file = open('testfile.txt','a+')
+	file.write(str(msg))
+	file.close()
+
+def interpert (data):
+	try:
+		#if (chr(data[0])=='a')
+		#        print ("A has been pushed")
+
+		data=data.decode("utf-8")
+		if (data[:2]=='on'):
+			print ("      ON")
+			#IPL_A = IPL()
+ 			#IPL_A.connect('192.168.1.13')
+ 			#IPL_A.sendIRmsg(1) 
+		if (data[:7]=='off'):
+			print ("       OFF")
+
+	except:
+		print("Unable to interpert command")
+
+
+
+
+
+
 
 
 
