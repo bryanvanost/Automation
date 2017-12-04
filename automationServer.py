@@ -2,6 +2,13 @@
 
 import socket
 import time
+import extron
+import PDU
+
+
+
+
+
 def startServer():
 	# Create a TCP/IP socket
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -51,7 +58,7 @@ def logEvent(msg):
 	eventtime=time.asctime( time.localtime(time.time()) )
 	print (msg)
 	file = open('testfile.txt','a+')
-	file.write(eventtime + str(msg) + "\n")
+	file.write(eventtime + " " + str(msg) + "\n")
 	file.close()
 
 def interpert (data):
