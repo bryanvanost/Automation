@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import socket
 import sys
+import eventlog
 import time;  # This is required to include time module.
 
 
@@ -21,11 +22,10 @@ class Extron:
 
                         if(received[2:68]==str("(c) Copyright 2009, Extron Electronics, IPL T S2, V1.15, 60-544-81")):
                                 print ("Connected to IPL T S2 @ " + HOST +":" + str(PORT))
-                        
-                        
+
                 except:
                         print ("Failed to Connect to IPL")
-                        
+
         def openSerialPort (self,HOST,serialPort,msg):
                 try:
                         #Connetc to IPL250
@@ -33,12 +33,11 @@ class Extron:
                         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         self.s.connect((HOST, PORT))
                         received = str(self.s.recv(128), "utf-8")
-                                        
-                        
+
                 except:
                         print ("Failed to Connect to Serial Port")
 
-                
+
 
         def RelayOn(self,Rly):
 
@@ -59,7 +58,7 @@ class Extron:
                         received = str(self.s.recv(128), "utf-8")                
                         if(received[:10]==str("Cpn02 Rly0")):
                                 print ("Relay "+ str(Rly) + " is OFF")
-                
+
                 except:
                         print ("Realy " + Rly + "Failed to OFF")      
 
@@ -99,5 +98,5 @@ def main():
 if __name__ == "__main__":
     main()
 else:
-	print ('Import Extron Module')
+	eventlog.record ('Extron Module Imported')
 
