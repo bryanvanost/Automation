@@ -4,7 +4,7 @@ import socket
 import time
 import extron
 import PDU
-
+import eventlog
 
 
 
@@ -17,7 +17,7 @@ def startServer():
 	HOST = '0.0.0.0'
 	PORT = 47808
 	server_address = (HOST, PORT)
-	logEvent('Starting Automation Server on %s port %s' % server_address)
+	eventlog.record('Starting Automation Server on %s port %s' % server_address)
 	
 	sock.bind(server_address)
 
@@ -38,7 +38,7 @@ def startServer():
 				print ('    ',eventtime,'received "%s"' % data)
 				if data:
 					interpert (data)
-					logEvent(data)
+					eventlog.record(data)
 					print ('      sending data back to the client')
 					connection.sendall(data)
 				else:
@@ -50,16 +50,6 @@ def startServer():
 
 
 
-
-
-
-
-def logEvent(msg):
-	eventtime=time.asctime( time.localtime(time.time()) )
-	print (msg)
-	file = open('testfile.txt','a+')
-	file.write(eventtime + " " + str(msg) + "\n")
-	file.close()
 
 def interpert (data):
 	try:
