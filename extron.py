@@ -25,13 +25,16 @@ class Extron:
 			print ("Failed to Connect to IPL")
 
 
-	def openSerialPort (self,HOST,serialPort,msg):
+	def openSerialPort (self,HOST,serialPort):
+		print("Makeing Connection to " + HOST + " serial Port " + serialPort)
 		try:
 			#Connetc to IPL250
-			PORT = 2000+ serialPort
+			PORT = 2000+ int(serialPort)
 			self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.s.connect((HOST, PORT))
-			received = str(self.s.recv(128), "utf-8")
+			#received = str(self.s.recv(128), "utf-8")
+			print("Connection established to "  + HOST + " serial Port " + serialPort)
+
 		except:
 			print ("Failed to Connect to Serial Port")
 
@@ -82,8 +85,9 @@ class Extron:
 def main():
 	print('Extron Script Started')
 	print('Test Connection to all devices')
-	print('We know that the laundry serial device is at 192.168.1.14')
-
+	laundry=Extron()
+	laundry.connect ('192.168.1.14')
+	laundry.openSerialPort('192.168.1.14','1')
 
 
 

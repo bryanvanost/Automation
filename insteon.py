@@ -27,15 +27,20 @@ messageFlag='\x0f'
 
 class Insteon:
 	def __init__(self):
-		print ('New Instance')
 		self.s = None
 
-	def connect(self,HOST,serialPort):
+	def connect(self,HOST,PORT):
 		try:
+
 			#Connetc to IPL250
- 			#Extron.connectToSerial(                
-			#print  (self.s)
-			print ('Connected to PLM' + HOST + serialPort)
+			#HOST is the IP address in sting
+			#PORT is the serial port {1,2..} in string
+			#extron.connect(
+			SerialServer=extron.Extron()
+			SerialServer.openSerialPort(HOST,PORT)
+			#Extron.openSerialPort(HOST,PORT)
+
+			print ('Connected to PLM' + HOST )
 		except:
 			print ("Failed to Connect to IPL")
 
@@ -320,7 +325,7 @@ def main():
 
 def main ():
 	HOST='192.168.1.14'
-	PORT=1
+	PORT='1'
 	print('Inston script running')
 
 	test= Insteon()
