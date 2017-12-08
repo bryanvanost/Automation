@@ -5,6 +5,7 @@ import time;  # This is required to include time module.
 #import /home/pi/automation.py
 import telnetlib
 import binascii 
+import extron
 
 #PLM01Adr='\x0f\x43\x69','2412S'
 #PLM='\x43\x6E\xFE'
@@ -25,21 +26,18 @@ messageFlag='\x0f'
 
 
 class Insteon:
+	def __init__(self):
+		print ('New Instance')
+		self.s = None
 
-        def __init__(self):
-              self.s = None
-
-
-        def connect(self,HOST,serialPort):
-                try:
-                        #Connetc to IPL250
-                        PORT = 2000 + serialPort
-                        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        self.s.connect((HOST, PORT))
-                        #print  (self.s)
-                        print ('Connected to PLM')
-                except:
-                        print ("Failed to Connect to IPL")
+	def connect(self,HOST,serialPort):
+		try:
+			#Connetc to IPL250
+ 			#Extron.connectToSerial(                
+			#print  (self.s)
+			print ('Connected to PLM' + HOST + serialPort)
+		except:
+			print ("Failed to Connect to IPL")
 
 """
         def close(self):
@@ -321,7 +319,12 @@ def main():
 
 
 def main ():
+	HOST='192.168.1.14'
+	PORT=1
 	print('Inston script running')
+
+	test= Insteon()
+	test.connect(HOST,PORT)
 
 
 if __name__ == "__main__":
