@@ -35,21 +35,18 @@ class Insteon:
                         #Connetc to IPL250
                         PORT = 2000 + serialPort
                         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        
                         self.s.connect((HOST, PORT))
                         #print  (self.s)
                         print ('Connected to PLM')
-                        
                 except:
                         print ("Failed to Connect to IPL")
 
-
+"""
         def close(self):
                 try:
                         self.s.close()
                         #print  (self.s)
                         print ('Closed')
-                        
                 except:
                         print ("Failed to Close")
 
@@ -246,8 +243,7 @@ def bullshit():
             print ('FAIL')
             exit()
 
-   
-        
+
 
 
 
@@ -319,14 +315,19 @@ def main():
                 #IPL_B.close()
                 #PDU_A.close()
                 #print ('Connection Closed')
-                
-        
 
 
+"""
+
+
+def main ():
+	print('Inston script running')
 
 
 if __name__ == "__main__":
     main()
 
+else:
+	print ('Insteon Module Imported')
 
 
