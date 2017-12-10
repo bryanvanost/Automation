@@ -68,23 +68,46 @@ class Extron:
 
 
 
-    def sendIRmsg(self,command):
+    def sendIRmsg(self,IRFunction):
+        IRFile=0
+        IRPort=1
         try:
-            msg = chr(27)+"1,0,"+ str(command)+ ",0IR" + chr(13)
+            function=self.getIRcommandInfo(IRFile,IRFunction)
+            print ("Send " + function + " command to port " + str(IRPort))
+            
+            #print("Sending IR code")
+            msg = chr(27)+"1,0,"+ str(IRFunction)+ ",0IR" + chr(13)
             self.s.sendall(bytes(msg, "utf-8"))
             #time.sleep(.01)
             received = str(self.s.recv(512), "utf-8")
-            var1=(int(received[3:6]))
-            var2=(int(received[7:10]))
-            var3=(int(received[11:14]))
-            var4=(int(received[15:18]))
-            print (var1, var2, var3, var4)
+            #X1
+            IRPort=(int(received[3:6]))
+            #X57
+            IRFile=(int(received[7:10]))
+            #X58
+            IRFunction=(int(received[11:14]))
+            #X59
+            PlaybackMode=(int(received[15:18]))
+            #IR playback mode (0 = play once, 1 = play continuously, 2 = stop). The response includes leading zeros.
+           
         except:
             print ("Fail")
 
-def main():
-    print('Extron Script Started')
-    print('Test Connection to all devices')
+
+    def getIRcommandInfo(self,IRFile,IRFunction):
+        try:
+            msg = chr(27) + str(IRFile) + ","+ str(IRFunction)+ "IR" + chr(13)
+            self.s.sendall(bytes(msg, "utf-8"))
+            #time.sleep(.01)
+            received = str(self.s.recv(512), "utf-8")
+            return (received[:-2])
+        except:
+            print ("Fail")
+        
+        
+
+def testRly():
+    print ("Test Open and Close of IPL relays")
     
     IPL1Addr='192.168.1.14'
     IPL2Addr='192.168.1.13'
@@ -95,9 +118,6 @@ def main():
     
     IPL1.connect (IPL1Addr)
     IPL2.connect (IPL2Addr)
-    
-    #IPL1.RelayClose(1)
-    #IPL1.RelayOpen(1)
     
     for i in range(1,5):
         IPL1.RelayClose(i)
@@ -111,8 +131,36 @@ def main():
         
     for i in range(1,5):
         IPL2.RelayOpen(i)
-    #IPL2.RelayClose(2)
-    #IPL2.RelayOpen(1)
+        
+       
+    
+    
+def main():
+    print('Extron Script Started')
+    print('Test Connection to all devices')
+    #testRly()
+    
+    IPL2Addr='192.168.1.13' 
+    IPL2=Extron()
+    IPL2.connect (IPL2Addr)
+    #Power
+    #IPL2.sendIRmsg(1)
+    
+    #Menu
+    #IPL2.sendIRmsg(25)
+    #Source
+    IPL2.sendIRmsg(47)
+    #for i in range (1,100):
+    #    print(i,)
+    #    print(IPL2.getIRcommandInfo(0, i))
+   
+    
+   
+    
+    #IPL1.RelayClose(1)
+    #IPL1.RelayOpen(1)
+    
+    
     
     
     #laundry.openSerialPort('192.168.1.14','1')
