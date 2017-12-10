@@ -36,89 +36,78 @@ class Insteon:
 			#HOST is the IP address in sting
 			#PORT is the serial port {1,2..} in string
 			#extron.connect(
-			SerialServer=extron.Extron()
-			SerialServer.openSerialPort(HOST,PORT)
+			self.s=extron.Extron()
+			self.s.openSerialPort(HOST,PORT)
+			print (self.s)
 			#Extron.openSerialPort(HOST,PORT)
 
-			print ('Connected to PLM' + HOST )
+			print ('Connected to PLM ' + HOST )
+			self.getIMInfo()
 		except:
 			print ("Failed to Connect to IPL")
 
+
+
+	def close(self):
+		try:
+			self.s.close()
+			#print  (self.s)
+			print ('Closed')
+		except:
+			print ("Failed to Close")
+
+	def send (self,msg):
+		inMsg=b''
+		try:
+			#msg = bytes.fromhex(msg)
+			print ('  -Sending ' + str(len(msg)) + ' character message:',end=' ')
+			for i in msg:
+				print (hex(i),end=' ')
+
+			print()
+			self.s.sendToSerialPort(msg)
+			#self.s.sendall(bytes(msg))
+			#self.s.settimeout(5)
+			#while 1:
+			#	try:
+			#		received=self.s.recv(1024)
+			#			inMsg = inMsg +  received
+			#	except:
+			#		print (' -Recieved ' + str(len(inMsg)) + ' character message:',end=' ')
+			#		for i in inMsg:
+			#			print (hex(i), end=' ')
+			#		print()
+			#		break
+		except:
+			print ("  -Failed to Send to Serial Port")
+		finally:
+			return ('1')
+
+	def resetIM(self):
+		### send 2 bytes
+		## Rx 9 Bytes
+		print ('Reset IM')
+		msg=b'\x02\x67'
+		rx=self.send (msg)
+		if (rx == b'\x02\x67\x06'):
+			print ('IM has been Reset')
+
+	def getIMInfo(self):
+		### send 2 bytes
+		## Rx 9 Bytes
+		print (" -Requesting IM Info")
+		msg=b'\x02\x60'
+		msg=self.send (msg)
+		if len(msg)==9 and msg[8]==6:
+			print("  PLM Address: %s %s %s"%(hex(msg[2]),hex(msg[3]),hex(msg[4])))
+			print("  Device Category: %s %s"%(hex(msg[5]),hex(msg[6])))
+			print("  Firmware Revision: %s"%(hex(msg[7])))
+		else:
+			print(" -Request for IM Information Fail")
+			for i in msg:
+				print ((i))
+
 """
-        def close(self):
-                try:
-                        self.s.close()
-                        #print  (self.s)
-                        print ('Closed')
-                except:
-                        print ("Failed to Close")
-
-
-        def send (self,msg):
-                inMsg=b''
-                try:
-                        #msg = bytes.fromhex(msg)
-                        print (' -Sending ' + str(len(msg)) + ' character message:',end=' ')
-                        for i in msg:
-                                print (hex(i),end=' ')
-                        print()
-
-                        self.s.sendall(bytes(msg))
-                        self.s.settimeout(5)
-                        
-                        
-                        while 1:
-                                try:
-                                        received=self.s.recv(1024)
-                                        inMsg = inMsg +  received
-                                        
-                                except:
-                                        print (' -Recieved ' + str(len(inMsg)) + ' character message:',end=' ')
-                                
-                                        for i in inMsg:
-                                                print (hex(i), end=' ')
-                                        print()
-                                        break
-                
-            
-                        
-                except:
-                        print ("Failed to Send to Serial Port")
-
-                finally:
-                        return (inMsg)
-
-                         
-        def resetIM(self):
-                ### send 2 bytes
-                ## Rx 9 Bytes
-                
-                print ('Reset IM')
-                msg=b'\x02\x67'
-                
-                rx=self.send (msg)
-                if (rx == b'\x02\x67\x06'):
-                        print ('IM has been Reset')
-
-        def getIMInfo(self):
-                ### send 2 bytes
-                ## Rx 9 Bytes
-
-                print ('Requesting IM Info')
-                msg=b'\x02\x60'
-                
-                msg=self.send (msg)
-                
-                if len(msg)==9 and msg[8]==6:
-                        print("  PLM Address: %s %s %s"%(hex(msg[2]),hex(msg[3]),hex(msg[4])))
-                        print("  Device Category: %s %s"%(hex(msg[5]),hex(msg[6])))
-                        print("  Firmware Revision: %s"%(hex(msg[7])))
-                else:
-                        print("  Request for IM Information Fail")
-                        for i in msg:
-                                print ((i))
-
-
         def setIMConfig(self):
                 ## Send 3 byte
                 #Rx 4 bytes

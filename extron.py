@@ -39,6 +39,11 @@ class Extron:
 			print ("Failed to Connect to Serial Port")
 
 
+	def sendToSerialPort(self,msg):
+		self.s.sendall(msg,"utf-8")
+
+		print (msg)
+
 	def RelayOn(self,Rly):
 		try:
 			print ("Attempt to ON Relay")
@@ -88,7 +93,7 @@ def main():
 	laundry=Extron()
 	laundry.connect ('192.168.1.14')
 	laundry.openSerialPort('192.168.1.14','1')
-
+	
 
 
 
