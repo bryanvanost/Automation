@@ -16,6 +16,7 @@ class Extron:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.connect((HOST, PORT))
             received = str(self.s.recv(128), "utf-8")
+            #print(received)
             if(received[2:68]==str("(c) Copyright 2009, Extron Electronics, IPL 250, V1.15, 60-1026-81")):
                 print ("Connected to IPL250 @ " + HOST +":" + str(PORT))
             if(received[2:68]==str("(c) Copyright 2009, Extron Electronics, IPL T S2, V1.15, 60-544-81")):
@@ -43,23 +44,24 @@ class Extron:
 
         print (msg)
 
-    def RelayOn(self,Rly):
+    def RelayClose(self,Rly):
         try:
-            print ("Attempt to ON Relay")
+            print ("Attempt to close relay " + str(Rly),)
             self.s.sendall(bytes(str(Rly) + "*1O","utf-8"))    
             received = str(self.s.recv(128), "utf-8")
-            if(received[:10]==str("Cpn02 Rly1")):
-                print ("Relay "+ str(Rly) + " is ON")
+            #print (received)
+            if(received[:10]==str("Cpn0" + str(Rly) + " Rly1")):
+                print ("Relay "+ str(Rly) + " is closed",)
         except:
             print ("Realy " + Rly + "Failed to ON")
 
-    def RelayOff(self,Rly):
+    def RelayOpen(self,Rly):
         try:
-            print ("Attempt to OFF Relay")
+            print ("Attempt to open relay " + str(Rly),)
             self.s.sendall(bytes(str(Rly) + "*2O","utf-8"))
             received = str(self.s.recv(128), "utf-8")
-            if(received[:10]==str("Cpn02 Rly0")):
-                print ("Relay "+ str(Rly) + " is OFF")
+            if(received[:10]==str("Cpn0" + str(Rly) + " Rly0")):
+                print ("Relay "+ str(Rly) + " is open")
 
         except:
             print ("Realy " + Rly + "Failed to OFF")
@@ -83,9 +85,37 @@ class Extron:
 def main():
     print('Extron Script Started')
     print('Test Connection to all devices')
-    laundry=Extron()
-    laundry.connect ('192.168.1.14')
-    laundry.openSerialPort('192.168.1.14','1')
+    
+    IPL1Addr='192.168.1.14'
+    IPL2Addr='192.168.1.13'
+    
+    IPL1=Extron()
+    IPL2=Extron()
+    
+    
+    IPL1.connect (IPL1Addr)
+    IPL2.connect (IPL2Addr)
+    
+    #IPL1.RelayClose(1)
+    #IPL1.RelayOpen(1)
+    
+    for i in range(1,5):
+        IPL1.RelayClose(i)
+        
+    for i in range(1,5):
+        IPL1.RelayOpen(i)
+    
+    
+    for i in range(1,5):
+        IPL2.RelayClose(i)
+        
+    for i in range(1,5):
+        IPL2.RelayOpen(i)
+    #IPL2.RelayClose(2)
+    #IPL2.RelayOpen(1)
+    
+    
+    #laundry.openSerialPort('192.168.1.14','1')
     
 
 
