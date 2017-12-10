@@ -1,24 +1,10 @@
 #!/usr/bin/python3
 import socket
 import sys
-import time;  # This is required to include time module.
-#import /home/pi/automation.py
+import time
 import telnetlib
 import binascii 
 import extron
-
-#PLM01Adr='\x0f\x43\x69','2412S'
-#PLM='\x43\x6E\xFE'
-#TriLamp= insteonDevice("Office Lamp",'\x0e\xa7\xa6','2456D3')
-#Office=  insteonDevice("Office",'\x09\x97\x01','2486D')
-#BedRm=   insteonDevice("Bed Room",'\x13\x99\xA2','2477D')
-#LivingRm=insteonDevice("Living Room",'\x1D\xE3\x5B','2477D')
-#DiningRm=insteonDevice("Dining Room",'\x1D\xDE\x9A','2477D')
-#CouchLamp=insteonDevice("Couch Lamp",'\x13\xB3\x25','2475D')
-#Other=insteonDevice("OTHER",'\x13\xB1\x00','2475D')
-
-
-
 
 startofIMCmd='\x02'
 sendInsteonStdMsgCmd ='\x62'
@@ -84,8 +70,10 @@ class Insteon:
             return ('1')
 
     def resetIM(self):
-        ### send 2 bytes
-        ## Rx 9 Bytes
+        """
+        send 2 bytes
+        Rx 9 Bytes
+        """
         print ('Reset IM')
         msg=b'\x02\x67'
         rx=self.send (msg)
@@ -93,8 +81,10 @@ class Insteon:
             print ('IM has been Reset')
 
     def getIMInfo(self):
-        ### send 2 bytes
-        ## Rx 9 Bytes
+        """
+        send 2 bytes
+        Rx 9 Bytes
+        """
         print (" -Requesting IM Info")
         msg=b'\x02\x60'
         msg=self.send (msg)
@@ -320,10 +310,8 @@ def main ():
     test= Insteon()
     test.connect(HOST,PORT)
 
-
 if __name__ == "__main__":
     main()
-
 else:
     print ('Insteon Module Imported')
 

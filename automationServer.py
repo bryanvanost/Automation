@@ -2,12 +2,10 @@
 
 import socket
 import time
-import extron
-import PDU
 import eventlog
-import insteon
-
-
+#import insteon
+#import extron
+#import PDU
 
 def startServer():
     # Create a TCP/IP socket
@@ -37,7 +35,7 @@ def startServer():
                 eventtime=time.asctime( time.localtime(time.time()) )
                 print ('    ',eventtime,'received "%s"' % data)
                 if data:
-                    interpert (data)
+                    interpret (data)
                     eventlog.record(data)
                     print ('      sending data back to the client')
                     connection.sendall(data)
@@ -48,10 +46,7 @@ def startServer():
             # Clean up the connection
             connection.close()
 
-
-
-
-def interpert (data):
+def interpret (data):
     try:
         #if (chr(data[0])=='a')
         #        print ("A has been pushed")
@@ -60,32 +55,16 @@ def interpert (data):
         if (data[:2]=='on'):
             print ("      ON")
             #IPL_A = IPL()
-             #IPL_A.connect('192.168.1.13')
-             #IPL_A.sendIRmsg(1) 
+            #IPL_A.connect('192.168.1.13')
+            #IPL_A.sendIRmsg(1) 
         if (data[:7]=='off'):
             print ("       OFF")
 
     except:
-        print("Unable to interpert command")
-
-
-
-
-
-
-
-
-
-
-
+        print("Unable to interpret command")
 
 def main():
     startServer()
-
-
-
-
-
 
 if __name__ == '__main__':
     main()

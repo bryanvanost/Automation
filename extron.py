@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 import socket
-import sys
 import eventlog
-import time;  # This is required to include time module.
+#import time;  # This is required to include time module.
 
 
 
@@ -26,9 +25,9 @@ class Extron:
 
 
     def openSerialPort (self,HOST,serialPort):
-        print("Makeing Connection to " + HOST + " serial Port " + serialPort)
+        print("Making Connection to " + HOST + " serial Port " + serialPort)
         try:
-            #Connetc to IPL250
+            #Connect to IPL250
             PORT = 2000+ int(serialPort)
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.connect((HOST, PORT))
@@ -81,12 +80,6 @@ class Extron:
         except:
             print ("Fail")
 
-    def send2SerialPort (self, port, msg):
-        try:
-            null
-        except:
-            print("Failed " + msg)
-
 def main():
     print('Extron Script Started')
     print('Test Connection to all devices')
@@ -102,4 +95,4 @@ def main():
 if __name__ == "__main__":
     main()
 else:
-    eventlog.record ('Extron Module Imported')
+    eventlog.record ("Extron Module Imported")

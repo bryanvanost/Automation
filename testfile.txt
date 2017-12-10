@@ -1,0 +1,34 @@
+Sun Dec 10 13:17:11 2017 Extron Module Imported
+Sun Dec 10 13:17:11 2017 PDU Module Improted
+Sun Dec 10 13:17:11 2017 Starting Automation Server on 0.0.0.0 port 47808
+Sun Dec 10 13:17:24 2017 Extron Module Imported
+Sun Dec 10 13:17:24 2017 PDU Module Improted
+Sun Dec 10 13:17:24 2017 Starting Automation Server on 0.0.0.0 port 47808
+Sun Dec 10 13:17:34 2017 Extron Module Imported
+Sun Dec 10 13:17:34 2017 PDU Module Improted
+Sun Dec 10 13:17:34 2017 Starting Automation Server on 0.0.0.0 port 47808
+Sun Dec 10 13:18:20 2017 Extron Module Imported
+Sun Dec 10 13:18:20 2017 PDU Module Improted
+Sun Dec 10 13:18:20 2017 Starting Automation Server on 0.0.0.0 port 47808
+Sun Dec 10 13:19:46 2017 Extron Module Imported
+Sun Dec 10 14:19:41 2017 Starting Automation Server on 0.0.0.0 port 47808
+Sun Dec 10 14:19:41 2017 b'ahhh\n'
+Sun Dec 10 14:19:41 2017 b'ahhh\n'
+Sun Dec 10 14:19:41 2017 b'ahhh\n'
+Sun Dec 10 14:19:41 2017 b'ahhh\n'
+Sun Dec 10 14:19:41 2017 b'ahhh\n'
+Sun Dec 10 14:19:41 2017 b'ahhh\n'
+Sun Dec 10 14:19:41 2017 b'ahhh\n'
+Sun Dec 10 14:19:42 2017 b'ahhh\n'
+Sun Dec 10 14:19:42 2017 b'ahhh\n'
+Sun Dec 10 14:19:42 2017 b'ahhh\n'
+Sun Dec 10 14:19:42 2017 b'ahhh\n'
+Sun Dec 10 14:19:42 2017 b'ahhh\n'
+Sun Dec 10 14:19:42 2017 b'ahhh\n'
+Sun Dec 10 14:19:43 2017 b'ahhh\n'
+Sun Dec 10 14:19:43 2017 b'ahhh\n'
+Sun Dec 10 14:19:43 2017 b'ahhh\n'
+Sun Dec 10 14:19:43 2017 b'ahhh\n'
+Sun Dec 10 14:20:31 2017 Starting Automation Server on 0.0.0.0 port 47808
+Sun Dec 10 14:20:31 2017 Starting Automation Server on 0.0.0.0 port 47808
+Sun Dec 10 14:20:38 2017 Starting Automation Server on 0.0.0.0 port 47808
