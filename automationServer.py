@@ -6,6 +6,7 @@ import eventlog
 #import insteon
 #import extron
 #import PDU
+#TEST
 
 def startServer():
     # Create a TCP/IP socket
