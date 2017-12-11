@@ -1,14 +1,8 @@
 #!/usr/bin/python3
-import socket
-import sys
-import time
-import telnetlib
-import binascii 
 import extron
+import devices
 
-startofIMCmd='\x02'
-sendInsteonStdMsgCmd ='\x62'
-messageFlag='\x0f'
+
 
 
 class Insteon:
@@ -19,7 +13,7 @@ class Insteon:
         try:
 
             #Connetc to IPL250
-            #HOST is the IP address in sting
+            #HOST is the IP devices in sting
             #PORT is the serial port {1,2..} in string
             #extron.connect(
             self.s=extron.Extron()
@@ -43,7 +37,6 @@ class Insteon:
             print ("Failed to Close")
 
     def send (self,msg):
-        inMsg=b''
         try:
             #msg = bytes.fromhex(msg)
             print ('  -Sending ' + str(len(msg)) + ' character message:',end=' ')
@@ -56,6 +49,9 @@ class Insteon:
             print ("  -Failed to Send to Serial Port")
         finally:
             return (msg)
+        
+    def listen(self):
+        self.s.listentoSerialPort()
 
     def reset(self):
         """
@@ -113,29 +109,35 @@ class Insteon:
             print ("  IM Configuration Set: %s (%s)"%(hex(msg[2]),bin (msg[2])))
 
 
+    def getFirstAllLink(self):
+        print ('Request First All Link')
+        msg=b'\x02\x69'
+        rx=self.send (msg)
+        if rx[-1:]==b'\x15':
+            print ("Database is Empty")
+
+    def sendInsteonCmd(self,deviceAddr,cmd1,cmd2):
+        startofIMCmd=b'\x02'
+        sendInsteonStdMsgCmd =b'\x62'
+        msgFlag=b'\x0f'
+        print ('Sending Standard Insteon Command')
+        msg=(b"".join([startofIMCmd, sendInsteonStdMsgCmd,deviceAddr,msgFlag,cmd1,cmd2]))
+        msg=self.send (msg)   
+        print(msg)
+    
+
+
 """
-        d
+        
 
 
 
         
 
-        def sendInsteonCmd(self,address,cmd1,cmd2):
-                startofIMCmd=b'\x02'
-                sendInsteonStdMsgCmd =b'\x62'
-                msgFlag=b'\x0f'
-                print ('Sending Standard Insteon Command')
-                
-                msg=startofIMCmd+sendInsteonStdMsgCmd+address+msgFlag+cmd1+cmd2
-                msg=self.send (msg)   
+        
 
 
-        def getFirstAllLink(self):
-                print ('Request First All Link')
-                msg=b'\x02\x69'
-                
-                rx=self.send (msg)
-                print (rx)
+        
 def bullshit():
         #BedRm=   insteonDevice("Bed Room",'\x13\x99\xA2','2477D')
         #LivingRm=insteonDevice("Living Room",'\x1D\xE3\x5B','2477D')
@@ -146,7 +148,7 @@ def bullshit():
         HOST = "192.168.1.14"
         PORT = 1
         S2 = Extron()
-        #0250+address+flags+cmd1+cmd2
+        #0250+devices+flags+cmd1+cmd2
         insteonHeader = bytes.fromhex('0262')
         Device1=bytes.fromhex('0ea7a6')
         #devAddr_LivingRm= bytes.fromhex('1399A2')
@@ -157,7 +159,7 @@ def bullshit():
         
         Lamp2=b'\x0E\xA5\x44'
         Lamp3=b'\x0E\xA7\xA6'
-        #address=Device2
+        #devices=Device2
         msgflag=bytes.fromhex('0f')
         pingCmd='0f'
         onCmd=bytes.fromhex('30')
@@ -215,29 +217,15 @@ def bullshit():
 
 
 def main():
-        #HOST = "192.168.1.14"
-        HOST = 'home.vanost.com'
-        PORT = 1
-        Apt501 = Insteon()
-        Apt501.connect(HOST,PORT)
-        #Apt501.resetIM()
-        #Apt501.getIMInfo()
-        #Apt501.getIMConfig()
-        #Apt501.setIMConfig()
-        #Apt501.getIMConfig()
-        LivingRm= b'\x13\x99\xA2'
-        Upstairs=b'\x1D\xDE\x9A'
-        Kitchen= b'\x1D\xDB\xCC'
         
-        address=Kitchen
-        pingCmd=b'\x30'
-        onCmd=(b'\x12')
-        offCmd =(b'\x13')
+        
+        devices=Kitchen
+        
 
         
         cmd1=pingCmd
         cmd2=b'\x00'
-        #Apt501.sendInsteonCmd(address,cmd1,cmd2)
+        #Apt501.sendInsteonCmd(devices,cmd1,cmd2)
 
 
 
@@ -247,12 +235,12 @@ def main():
         
                 
         TriLamp=b'\x0E\x9A\x17'
-        address=TriLamp
+        devices=TriLamp
         Apt501.getFirstAllLink()
         
         
         
-        #Apt501.sendInsteonCmd(address,cmd1,cmd2)
+        #Apt501.sendInsteonCmd(devices,cmd1,cmd2)
         
         
         Apt501.close()
@@ -296,12 +284,35 @@ def main ():
     lighting.connect(HOST, serialPort)
     
     lighting.getInfo()
-    lighting.getConfig()
     
     configFlag=0b01000000
-    #lighting.setConfig(configFlag)
-    #lighting.getConfig()
+        #        76543210
+        #Bit 7 = 1 Disables automatic linking when the user pushes and holds the SET Button (see Button Event Report49). 
+        #Bit 6 = 1 Puts the IM into Monitor Mode (see About Monitor Mode45in the Notes below). 
+        #Bit 5 = 1 Disables automatic LED operation by the IM. The host must now control the IMs LED using LED On50 Off51.
+        #Bit 4 = 1 Disable host communications Deadman feature (i.e. allow host to delay more than 240 milliseconds between sending bytes to the IM). See IM RS232 Port Settings8
+        #Bits 3 - 0 Reserved for internal use. Set these bits to 0.
+    lighting.setConfig(configFlag)
+    lighting.getConfig()
     #lighting.reset()
+    
+    #lighting.getFirstAllLink()
+    print()
+    pingCmd=b'\x30'
+    onCmd=(b'\x12')
+    offCmd =(b'\x13')
+   
+    address=devices.kitchen
+    cmd1=pingCmd
+    cmd2=b'\xff'
+    #lighting.sendInsteonCmd(address, cmd1, cmd2)
+    
+    address=devices.upstairsBedRm
+    cmd1=pingCmd
+    cmd2=b'\xff'
+    lighting.sendInsteonCmd(address, cmd1, cmd2)
+    lighting.listen()
+    
     
     
 

@@ -57,7 +57,24 @@ class Extron:
                 rx = rx + self.s.recv(128)
                 if ((rx[-1:])==b'\x06'):
                     #print("Received " + str(rx))
-                    return (rx)                
+                    return (rx) 
+                if ((rx[-1:])==b'\x15'):
+                    print("Received " + str(rx))
+                    return (rx)               
+        except:
+            print("FAIL")
+            
+            
+    def listentoSerialPort (self):
+        print("listening")
+        rx=b''
+        try:
+            while True:
+                rx = rx + self.s.recv(128)
+                print(rx)
+                print ('  -Recieved ' + str(len(rx)) + ' character message:',end=' ')
+                for i in rx:
+                    print (hex(i),end=' ')
         except:
             print("FAIL")
           
