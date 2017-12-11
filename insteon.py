@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 import extron
 import devices
-from unittest import case
+import sys
+import time
+
 
 
 
@@ -40,61 +42,88 @@ class Insteon:
     def send (self,msg):
         try:
             #msg = bytes.fromhex(msg)
-            print ('  -Sending ' + str(len(msg)) + ' character message:',end=' ')
-            for i in msg:
-                print (hex(i),end=' ')
-
-            print()
-            msg=self.s.sendToSerialPort(msg)
+            self.s.sendToSerialPort(msg)
+            
         except:
             print ("  -Failed to Send to Serial Port")
-        finally:
-            return (msg)
         
-    def unpackStdMsg(self,msg): 
-        print("\nReceived Standard Message:",end='')  
-        for i in msg:
-            print (hex(i),end=' ')
-            
-        print()
+    def unpackStdMsg(self,msg):         
         msgOriginator=msg[2:5]
         msgAdr=msg[6:8]
         cmd1=msg[9]
         cmd2=msg[10]
         #b'\x030'
+        eventtime=time.asctime( time.localtime(time.time()) )
+        
+        print(eventtime + ": Received ",end='')
         if (cmd1==48):
-            print('Ping',end='')
+            print('Ping ACK',end='')
         #b'\x11'
         elif cmd1==17:
-             print('ON',end='')
+             print('UP/ON',end='')
+        elif cmd1==18:
+             print('Double UP/ON',end='')
         #b'\x13
         elif cmd1==19:
-            print('OFF',end='')
-        else:
-            print (hex(cmd1),end='')
+            print('DOWN/OFF',end='')
+        elif cmd1==20:
+            print('Double DOWN/OFF',end='')
         
-        print("  from:",end=' ')
-        for i in msgOriginator:
-            print (hex(i),end=' ')
+        
+        print(" from ",end='')
+        
+        if ((msgOriginator)==b'\x1D\xDB\xCC'):
+            print ('kitchen')
+        elif ((msgOriginator)==b'\x1D\xE3\x5B'):
+            print ('downstairs wall')
+        elif ((msgOriginator)==b'\x1D\xDE\x9A'):
+            print('upstairs bedroom')   
+        else:
+            for i in msgOriginator:
+                print (hex(i),end=' ')
+        print()
+        
+        #print("\nReceived Standard Message:",end='')  
+        #for i in msg:
+        #    print (hex(i),end=' ')
+        
         #print("  Device Category: %s %s"%(hex(msg[5]),hex(msg[6])))
         # print("  Firmware Revision: %s"%(hex(msg[7])))
        
-        
+        return(1)
         
     def listen(self):
         msg=b''
-        print("\nListening..\n")
+        #
         while True:
-            msg=msg+self.s.listentoSerialPort()
-        #Check if this is a Standard Message Received
-            for i in msg:
-                    print (hex(i),end=' ')
-                    
-            if (len(msg)>=11):
+            msg=msg+self.s.listenToSerialPort()
+            if ((msg[-1:])==b'\x06'):
+                return(msg)
+            
+            elif ((msg[-1:])==b'\x15'):
+                return (msg) 
+            
+            elif ((msg[:3])==b'\x02\x54\x02'):
+                print("The SET Button was Tapped")
+                msg=b''
+                
+            elif ((msg[:3])==b'\x02\x54\x03'):
+                print("There was a SET Button Press and Hold for more than three seconds.")
+                msg=b''
+                
+            elif ((msg[:3])==b'\x02\x54\x04'):
+                print("The SET Button was released after a SET Button Press and Hold event was recorded.")
+                msg=b''
+                 
+            elif (len(msg)>=11):
                 if (msg[:2]==b'\x02\x50'):
                     self.unpackStdMsg(msg)
                     msg=b''
-            
+                        
+            #elif (len(msg)>1):
+            #    print('dd')
+            #   for i in msg:
+            #      print (hex(i),end=' ')
                 
 
     def reset(self):
@@ -102,12 +131,15 @@ class Insteon:
         send 2 bytes
         Rx 9 Bytes
         """
-        print ('Reset IM')
+        print (' -Reset IM')
         msg=b'\x02\x67'
-        rx=self.send (msg)
-        if (rx == b'\x02\x67\x06'):
-            print ('IM has been Reset')
-
+        self.s.sendToSerialPort(msg)
+        while True:
+                msg=self.s.listenToSerialPort()
+                if (msg == b'\x02\x67\x06'):
+                    print ('  -IM has been Reset')
+                    break
+                
     def getInfo(self):
         """
         send 2 bytes
@@ -115,15 +147,18 @@ class Insteon:
         """
         print (" -Requesting IM Info")
         msg=b'\x02\x60'
-        msg=self.send (msg)
+        self.send (msg)
+        msg=self.listen()
         if len(msg)==9 and msg[8]==6:
             print("  -PLM Address: %s %s %s"%(hex(msg[2]),hex(msg[3]),hex(msg[4])))
             print("  -Device Category: %s %s"%(hex(msg[5]),hex(msg[6])))
             print("  -Firmware Revision: %s"%(hex(msg[7])))
         else:
-            print(" -Request for IM Information Fail")
+            print("  -Request for IM Information Fail")
             for i in msg:
-                print ((i))
+                print (hex(i))
+                sys.exit()
+                
 
     def getConfig(self):
         ## send 2 bytes
@@ -131,13 +166,14 @@ class Insteon:
         # system returing 4 bytes??
         print (' -Requesting IM Configuration')
         msg=b'\x02\x73'
-        msg=self.send (msg)     
+        self.send (msg)
+        msg=self.listen()     
         if msg[-1]==6:
             print("  -IM Configuration Received %s (%s)"%(hex(msg[2]),bin (msg[2])))
         else:
             print ('FAIL: ',)
             for i in msg:
-                print ((i)), 
+                print (hex(i)), 
     
         #bit 6 = 1 Puts the IM into Monitor Mode 
         #bit 4 = 1 Disable host communications Deadman feature (i.e. allow host to delay more than 240 milliseconds between sending bytes to the IM)
@@ -147,189 +183,55 @@ class Insteon:
         #Rx 4 bytes
         print ("Setting IM Configuration")       
         msg=b'\x02\x6B' + (bytes([configFlag]))
-        print (type(msg))
-        msg=self.send (msg)
+        self.send (msg)
+        msg=self.listen()
         if len(msg)==4 and msg[3]==6:
-            print ("  IM Configuration Set: %s (%s)"%(hex(msg[2]),bin (msg[2])))
+            print ("  -IM Configuration Set: %s (%s)"%(hex(msg[2]),bin (msg[2])))
 
 
+    def unpackAllLinkResponse(self,msg):
+        pass
+    
     def getFirstAllLink(self):
-        print ('Request First All Link')
+        print (' -Request First All Link')
         msg=b'\x02\x69'
         rx=self.send (msg)
-        if rx[-1:]==b'\x15':
-            print ("Database is Empty")
-
+        if rx[-1:]==b'\x06':
+            print ("  -Database is Not Empty")
+            msg=self.s.listenToSerialPort()
+            if (msg[:2]==(b'\x02W')):
+                msgOriginator=msg[4:7]
+                msgAdr=msg[6:8]
+                print("ALL-Link Record Response Received from",end=' ')
+                for i in msgOriginator:
+                    print (hex(i),end=' ')
+                
+                
+        elif rx[-1:]==b'\x15':
+            print ("  -Database is Empty")
+        else:
+            print("WTF")
+            
+    
     def sendInsteonCmd(self,deviceAddr,cmd1,cmd2):
         startofIMCmd=b'\x02'
         sendInsteonStdMsgCmd =b'\x62'
         msgFlag=b'\x0f'
         print ('Sending Standard Insteon Command')
         msg=(b"".join([startofIMCmd, sendInsteonStdMsgCmd,deviceAddr,msgFlag,cmd1,cmd2]))
-        msg=self.send (msg)   
-        print(msg)
-    
-
-
-"""
-        
-
-
-
-        
-
-        
-
-
-        
-def bullshit():
-        #BedRm=   insteonDevice("Bed Room",'\x13\x99\xA2','2477D')
-        #LivingRm=insteonDevice("Living Room",'\x1D\xE3\x5B','2477D')
-        #DiningRm=insteonDevice("Dining Room",'\x1D\xDE\x9A','2477D')
-        #CouchLamp=insteonDevice("Couch Lamp",'\x13\xB3\x25','2475D')
-        #Other=insteonDevice("OTHER",'\x13\xB1\x00','2475D')
-        
-        HOST = "192.168.1.14"
-        PORT = 1
-        S2 = Extron()
-        #0250+devices+flags+cmd1+cmd2
-        insteonHeader = bytes.fromhex('0262')
-        Device1=bytes.fromhex('0ea7a6')
-        #devAddr_LivingRm= bytes.fromhex('1399A2')
-        
-        DeviceA=bytes.fromhex('1DDBCC')
-        DeviceB=bytes.fromhex('1DE35B')
-        
-        
-        Lamp2=b'\x0E\xA5\x44'
-        Lamp3=b'\x0E\xA7\xA6'
-        #devices=Device2
-        msgflag=bytes.fromhex('0f')
-        pingCmd='0f'
-        onCmd=bytes.fromhex('30')
-        offCmd='13'
-        beep=b'\x30'
-        cmd1=onCmd
-        cmd2=bytes.fromhex('FF')
-        try:
-                print ('Sending Standard Insteon Command')
-                onlevel=255
-                #print (bin(onlevel))
-                #print (hex(onlevel))
-                #msg=insteonHeader+LivingRm+msgflag+cmd1+cmd2
-                
-                msg=insteonHeader+DeviceA+msgflag+cmd1+cmd2
-                
-                #msg=insteonHeader+Device4+msgflag+cmd1+cmd2
-                print (msg)
-
-                inMessage=Insteon.connect (HOST, 1, msg)
-                for i in inMessage:
-                        print (hex(i),end=' ')
-                print()
-
-
-
-                #
-                
-                #msg='0262'+Device3+msgflag+cmd1+cmd2
-                #msg=S2.openSerialPort (HOST, 1, msg)
-                #time.sleep(1)
-                
-                #msg='0262'+Device4+msgflag+cmd1+cmd2
-                #msg=S2.openSerialPort (HOST, 1, msg)
-                #time.sleep(1)
-
-                #msg='0262'+Device5+msgflag+cmd1+cmd2
-                #msg=S2.openSerialPort (HOST, 1, msg)
-                #time.sleep(1)
-
-                #msg='0262'+Device6+msgflag+cmd1+cmd2
-                #msg=S2.openSerialPort (HOST, 1, msg)
-                #time.sleep(1)
-
-                #msg='0262'+Device7+msgflag+cmd1+cmd2
-                #msg=S2.openSerialPort (HOST, 1, msg)
-                #time.sleep(1)
-                
-        except: 
-            print ('FAIL')
-            exit()
-
-
-
-
-
-def main():
-        
-        
-        devices=Kitchen
-        
-
-        
-        cmd1=pingCmd
-        cmd2=b'\x00'
-        #Apt501.sendInsteonCmd(devices,cmd1,cmd2)
-
-
-
-        #Apt501.sendInsteonCmd(LivingRm,cmd1,cmd2)
-        #Apt501.sendInsteonCmd(Upstairs,cmd1,cmd2)
-        #Apt501.sendInsteonCmd(Kitchen,cmd1,cmd2)
-        
-                
-        TriLamp=b'\x0E\x9A\x17'
-        devices=TriLamp
-        Apt501.getFirstAllLink()
-        
-        
-        
-        #Apt501.sendInsteonCmd(devices,cmd1,cmd2)
-        
-        
-        Apt501.close()
-
-        #PLM01Adr='\x0f\x43\x69','2412S'
-        #PLM='\x43\x6E\xFE'
-        #TriLamp= insteonDevice("Office Lamp",'\x0e\xa7\xa6','2456D3')
-        #Office=  insteonDevice("Office",'\x09\x97\x01','2486D')
-        #BedRm=   insteonDevice("Bed Room",'\x13\x99\xA2','2477D')
-        #LivingRm=insteonDevice("Living Room",'\x1D\xE3\x5B','2477D')
-        #DiningRm=insteonDevice("Dining Room",'\x1D\xDE\x9A','2477D')
-        #CouchLamp=insteonDevice("Couch Lamp",'\x13\xB3\x25','2475D')
-        #Other=insteonDevice("OTHER",'\x13\xB1\x00','2475D')
-        #try:
-                
-                #getIMInfo()
-                #getIMConfig()
-                #resetIM()
-                #setIMConfig()
-                #getIMConfig()
-                #sendInsteonCmd()
-                #resetIM()
-               
-
-        #finally:
-                #IPL_A.close()
-                #IPL_B.close()
-                #PDU_A.close()
-                #print ('Connection Closed')
-
-
-"""
+        msg=self.send (msg)
+  
 
 
 def main ():
     HOST='192.168.1.14'
     serialPort='1'
     print('Inston script running')
-
     lighting=Insteon()
     lighting.connect(HOST, serialPort)
-    
     lighting.getInfo()
     lighting.getConfig()
-    
+    #lighting.reset()
     configFlag=0b01000000
         #        76543210
         #Bit 7 = 1 Disables automatic linking when the user pushes and holds the SET Button (see Button Event Report). 
@@ -337,9 +239,21 @@ def main ():
         #Bit 5 = 1 Disables automatic LED operation by the IM. The host must now control the IMs LED using LED On50 Off51.
         #Bit 4 = 1 Disable host communications Deadman feature (i.e. allow host to delay more than 240 milliseconds between sending bytes to the IM). See IM RS232 Port Settings8
         #Bits 3 - 0 Reserved for internal use. Set these bits to 0.
-    #lighting.setConfig(configFlag)
+    lighting.setConfig(configFlag)
    
-    #lighting.reset()
+    
+        
+    pingCmd=b'\x30'
+    address=devices.kitchen
+    cmd2=b'\xff'
+    #lighting.sendInsteonCmd(address, pingCmd, cmd2)
+   
+    while True:
+        print("Listening..")
+        msg=lighting.listen()
+        print(msg)
+   
+    
     
     #lighting.getFirstAllLink()
     #print()
@@ -350,11 +264,13 @@ def main ():
     #address=devices.upstairsBedRm
     
     #address=devices.kitchen
-    ###address=devices.livingRm
+    #address=devices.lamp1
     #address=devices.lamp2
     #cmd1=pingCmd
     #cmd2=b'\xff'
     #lighting.sendInsteonCmd(address, cmd1, cmd2)
+    
+    
     #lighting.listen()
     #while 1:
     #    lighting.listen()

@@ -50,31 +50,22 @@ class Extron:
 
 
     def sendToSerialPort(self,tx):
-        rx=b''
-        #print("Sending: " + str(tx))
+        print ('  -Sending ' + str(len(tx)) + ' character message:',end=' ')
+        for i in tx:
+            print (hex(i),end=' ')
+        print()
         self.s.sendall(tx)
-        try:
-            while True:
-                rx = rx + self.s.recv(128)
-                if ((rx[-1:])==b'\x06'):
-                    #print("Received " + str(rx))
-                    return (rx) 
-                if ((rx[-1:])==b'\x15'):
-                    print("Received " + str(rx))
-                    return (rx)               
-        except:
-            print("FAIL")
+        
             
             
-    def listentoSerialPort (self):
+    def listenToSerialPort (self):
         rx=b''
-        self.s.settimeout(1.0)
+        self.s.settimeout(.25)
         try:
             rx = self.s.recv(1024)
         finally:
-            print("timeout")          
             return (rx)
-         
+
           
   
     def RelayClose(self,Rly):
