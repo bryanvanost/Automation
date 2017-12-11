@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import socket
 import eventlog
+import time
 #import time;  # This is required to include time module.
 
 
@@ -66,13 +67,13 @@ class Extron:
             
             
     def listentoSerialPort (self):
-        print("listening")
         rx=b''
-        while True:
-            rx = rx + self.s.recv(1024)
-            print(rx)
-            if (len(rx)>10):
-                return (rx)
+        self.s.settimeout(1.0)
+        try:
+            rx = self.s.recv(1024)
+        finally:
+            print(rx)            
+            return (rx)
          
           
   

@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import extron
 import devices
+from unittest import case
 
 
 
@@ -50,10 +51,49 @@ class Insteon:
         finally:
             return (msg)
         
-    def listen(self):
-        msg=self.s.listentoSerialPort()
+    def unpackStdMsg(self,msg): 
+        print("Received Standard Message:",end='')  
         for i in msg:
-            print (i,)
+            print (hex(i),end=' ')
+        msgOriginator=msg[2:5]
+        msgAdr=msg[6:8]
+        cmd1=msg[9]
+        cmd2=msg[10]
+        #b'\x030'
+        if (cmd1==48):
+            print('Ping',end='')
+        #b'\x11'
+        elif cmd1==17:
+             print('ON',end='')
+        #b'\x13
+        elif cmd1==19:
+            print('OFF',end='')
+        else:
+            print (hex(cmd1),end='')
+        
+        print("  from:",end=' ')
+        for i in msgOriginator:
+            print (hex(i),end=' ')
+        #print("  Device Category: %s %s"%(hex(msg[5]),hex(msg[6])))
+        # print("  Firmware Revision: %s"%(hex(msg[7])))
+       
+       
+       
+       
+       
+        
+    def listen(self):
+        msg=b''
+        print("\nListening..\n")
+        msg=msg+self.s.listentoSerialPort()
+        #Check if this is a Standard Message Received
+        for i in msg:
+                print (hex(i),end=' ')
+        if (len(msg)==11):
+            if (msg[:2]==b'\x02\x50'):
+                self.unpackStdMsg(msg)
+            
+                
 
     def reset(self):
         """
@@ -314,8 +354,8 @@ def main ():
     cmd2=b'\xff'
     lighting.sendInsteonCmd(address, cmd1, cmd2)
     lighting.listen()
-    
-    
+    while 1:
+        lighting.listen()
     
 
 if __name__ == "__main__":
