@@ -15,7 +15,7 @@ class Insteon:
     def __init__(self):
         self.s = None
 
-    def connect(self,HOST,PORT):
+    def connect(self,HOST,serialPort):
         try:
 
             #Connetc to IPL250
@@ -23,12 +23,12 @@ class Insteon:
             #PORT is the serial port {1,2..} in string
             #extron.connect(
             self.s=extron.Extron()
-            self.s.openSerialPort(HOST,PORT)
+            self.s.connectToSerialPort(HOST, serialPort)
             print (self.s)
             #Extron.openSerialPort(HOST,PORT)
 
             print ('Connected to PLM ' + HOST )
-            self.getIMInfo()
+            #self.getIMInfo()
         except:
             print ("Failed to Connect to IPL")
 
@@ -51,25 +51,13 @@ class Insteon:
                 print (hex(i),end=' ')
 
             print()
-            self.s.sendToSerialPort(msg)
-            #self.s.sendall(bytes(msg))
-            #self.s.settimeout(5)
-            #while 1:
-            #    try:
-            #        received=self.s.recv(1024)
-            #            inMsg = inMsg +  received
-            #    except:
-            #        print (' -Recieved ' + str(len(inMsg)) + ' character message:',end=' ')
-            #        for i in inMsg:
-            #            print (hex(i), end=' ')
-            #        print()
-            #        break
+            msg=self.s.sendToSerialPort(msg)
         except:
             print ("  -Failed to Send to Serial Port")
         finally:
-            return ('1')
+            return (msg)
 
-    def resetIM(self):
+    def reset(self):
         """
         send 2 bytes
         Rx 9 Bytes
@@ -80,7 +68,7 @@ class Insteon:
         if (rx == b'\x02\x67\x06'):
             print ('IM has been Reset')
 
-    def getIMInfo(self):
+    def getInfo(self):
         """
         send 2 bytes
         Rx 9 Bytes
@@ -97,43 +85,40 @@ class Insteon:
             for i in msg:
                 print ((i))
 
+    def getConfig(self):
+        ## send 2 bytes
+        # Received 6 bytes
+        # system returing 4 bytes??
+        print ('Requesting IM Configuration')
+        msg=b'\x02\x73'
+        msg=self.send (msg)     
+        if msg[-1]==6:
+            print("  IM Configuration Received %s (%s)"%(hex(msg[2]),bin (msg[2])))
+        else:
+            print ('FAIL: ',)
+            for i in msg:
+                print ((i)), 
+    
+        #bit 6 = 1 Puts the IM into Monitor Mode 
+        #bit 4 = 1 Disable host communications Deadman feature (i.e. allow host to delay more than 240 milliseconds between sending bytes to the IM)
+
+    def setConfig(self,configFlag):
+        ## Send 3 byte
+        #Rx 4 bytes
+        print ("Setting IM Configuration")       
+        msg=b'\x02\x6B' + (bytes([configFlag]))
+        print (type(msg))
+        msg=self.send (msg)
+        if len(msg)==4 and msg[3]==6:
+            print ("  IM Configuration Set: %s (%s)"%(hex(msg[2]),bin (msg[2])))
+
+
 """
-        def setIMConfig(self):
-                ## Send 3 byte
-                #Rx 4 bytes
-
-                print ("Setting IM Configuration")
-                configFlag=0b01000000
-                msg=b'\x02\x6B\x40'
-                
-                msg=self.send (msg)
-                if len(msg)==4 and msg[3]==6:
-                    print ("  IM Configuration Set: %s (%s)"%(hex(msg[2]),bin (msg[2])))
+        d
 
 
 
-
-        def getIMConfig(self):
-                ## send 2 bytes
-                # Received 6 bytes
-                # system returing 4 bytes??
-                
-                
-                print ('Requesting IM Configuration')
-                msg=b'\x02\x73'
-                msg=self.send (msg)     
-                if msg[-1]==6:
-                        print("  IM Configuration Received %s (%s)"%(hex(msg[2]),bin (msg[2])))
-                else:
-                        print ('FAIL: ',)
-                        for i in msg:
-                                print ((i)), 
-
-          #bit 6 = 1 Puts the IM into Monitor Mode 
-
-          #bit 4 = 1 Disable host communications Deadman feature (i.e. allow host to delay more than 240 milliseconds between sending bytes to the IM)
-
-
+        
 
         def sendInsteonCmd(self,address,cmd1,cmd2):
                 startofIMCmd=b'\x02'
@@ -304,11 +289,21 @@ def main():
 
 def main ():
     HOST='192.168.1.14'
-    PORT='1'
+    serialPort='1'
     print('Inston script running')
 
-    test= Insteon()
-    test.connect(HOST,PORT)
+    lighting=Insteon()
+    lighting.connect(HOST, serialPort)
+    
+    lighting.getInfo()
+    lighting.getConfig()
+    
+    configFlag=0b01000000
+    #lighting.setConfig(configFlag)
+    #lighting.getConfig()
+    #lighting.reset()
+    
+    
 
 if __name__ == "__main__":
     main()

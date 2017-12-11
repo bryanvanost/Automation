@@ -4,10 +4,12 @@ import eventlog
 #import time;  # This is required to include time module.
 
 
-
 class Extron:
     def __init__(self):
         self.s = None
+        
+    def __del__(self):
+        print("Done")
 
     def connect(self,HOST):
         try:
@@ -21,29 +23,45 @@ class Extron:
                 print ("Connected to IPL250 @ " + HOST +":" + str(PORT))
             if(received[2:68]==str("(c) Copyright 2009, Extron Electronics, IPL T S2, V1.15, 60-544-81")):
                 print ("Connected to IPL T S2 @ " + HOST +":" + str(PORT))
+            print(self.s)
         except:
             print ("Failed to Connect to IPL")
 
 
-    def openSerialPort (self,HOST,serialPort):
-        print("Making Connection to " + HOST + " serial Port " + serialPort)
+
+    def close(self):
+        self.s.close()
+        
+
+        
+        
+    def connectToSerialPort (self,HOST,serialPort):
+        print("Making Connection to " + HOST + " Serial Port " + str(serialPort))
         try:
             #Connect to IPL250
-            PORT = 2000+ int(serialPort)
+            PORT = 2000 + int(serialPort)
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.connect((HOST, PORT))
-            #received = str(self.s.recv(128), "utf-8")
-            print("Connection established to "  + HOST + " serial Port " + serialPort)
+            print (self.s)
 
         except:
             print ("Failed to Connect to Serial Port")
 
 
-    def sendToSerialPort(self,msg):
-        self.s.sendall(msg,"utf-8")
-
-        print (msg)
-
+    def sendToSerialPort(self,tx):
+        rx=b''
+        #print("Sending: " + str(tx))
+        self.s.sendall(tx)
+        try:
+            while True:
+                rx = rx + self.s.recv(128)
+                if ((rx[-1:])==b'\x06'):
+                    #print("Received " + str(rx))
+                    return (rx)                
+        except:
+            print("FAIL")
+          
+  
     def RelayClose(self,Rly):
         try:
             print ("Attempt to close relay " + str(Rly),)
@@ -73,7 +91,7 @@ class Extron:
         IRPort=1
         try:
             function=self.getIRcommandInfo(IRFile,IRFunction)
-            print ("Send " + function + " command to port " + str(IRPort))
+            print ("Send " + function + " command to IR port " + str(IRPort))
             
             #print("Sending IR code")
             msg = chr(27)+"1,0,"+ str(IRFunction)+ ",0IR" + chr(13)
@@ -139,9 +157,11 @@ def main():
     print('Extron Script Started')
     print('Test Connection to all devices')
     #testRly()
-    
+    IPL1Addr='192.168.1.14' 
     IPL2Addr='192.168.1.13' 
+    IPL1=Extron()
     IPL2=Extron()
+    
     IPL2.connect (IPL2Addr)
     #Power
     #IPL2.sendIRmsg(1)
@@ -150,20 +170,16 @@ def main():
     #IPL2.sendIRmsg(25)
     #Source
     IPL2.sendIRmsg(47)
+    IPL1.connectToSerialPort(IPL1Addr,1)
+    msg=b'\x02\x60'
+    rx=IPL1.sendToSerialPort(msg)
+    print (rx)
     #for i in range (1,100):
     #    print(i,)
     #    print(IPL2.getIRcommandInfo(0, i))
    
     
-   
-    
-    #IPL1.RelayClose(1)
-    #IPL1.RelayOpen(1)
-    
-    
-    
-    
-    #laundry.openSerialPort('192.168.1.14','1')
+    IPL2.close()
     
 
 
