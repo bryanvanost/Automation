@@ -1,7 +1,11 @@
-plm=b'\x43\x6E\xFE'
+plm=b'\x43\x6E\xFE'#2413S
+plm2=b'\x0f\x43\x69'
 livingRm= b'\x13\x99\xA2'
 upstairsBedRm=b'\x1D\xDE\x9A'
 kitchen= b'\x1D\xDB\xCC'
+lamp1= b'\x0E\xA7\xA6'
+lamp2= b'\x0E\x9A\x17'
+
 #TriLamp= insteonDevice(Office Lamp,'x0exa7xa6','2456D3')
 
 

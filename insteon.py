@@ -52,9 +52,11 @@ class Insteon:
             return (msg)
         
     def unpackStdMsg(self,msg): 
-        print("Received Standard Message:",end='')  
+        print("\nReceived Standard Message:",end='')  
         for i in msg:
             print (hex(i),end=' ')
+            
+        print()
         msgOriginator=msg[2:5]
         msgAdr=msg[6:8]
         cmd1=msg[9]
@@ -77,21 +79,21 @@ class Insteon:
         #print("  Device Category: %s %s"%(hex(msg[5]),hex(msg[6])))
         # print("  Firmware Revision: %s"%(hex(msg[7])))
        
-       
-       
-       
-       
+        
         
     def listen(self):
         msg=b''
         print("\nListening..\n")
-        msg=msg+self.s.listentoSerialPort()
+        while True:
+            msg=msg+self.s.listentoSerialPort()
         #Check if this is a Standard Message Received
-        for i in msg:
-                print (hex(i),end=' ')
-        if (len(msg)==11):
-            if (msg[:2]==b'\x02\x50'):
-                self.unpackStdMsg(msg)
+            for i in msg:
+                    print (hex(i),end=' ')
+                    
+            if (len(msg)>=11):
+                if (msg[:2]==b'\x02\x50'):
+                    self.unpackStdMsg(msg)
+                    msg=b''
             
                 
 
@@ -115,9 +117,9 @@ class Insteon:
         msg=b'\x02\x60'
         msg=self.send (msg)
         if len(msg)==9 and msg[8]==6:
-            print("  PLM Address: %s %s %s"%(hex(msg[2]),hex(msg[3]),hex(msg[4])))
-            print("  Device Category: %s %s"%(hex(msg[5]),hex(msg[6])))
-            print("  Firmware Revision: %s"%(hex(msg[7])))
+            print("  -PLM Address: %s %s %s"%(hex(msg[2]),hex(msg[3]),hex(msg[4])))
+            print("  -Device Category: %s %s"%(hex(msg[5]),hex(msg[6])))
+            print("  -Firmware Revision: %s"%(hex(msg[7])))
         else:
             print(" -Request for IM Information Fail")
             for i in msg:
@@ -127,11 +129,11 @@ class Insteon:
         ## send 2 bytes
         # Received 6 bytes
         # system returing 4 bytes??
-        print ('Requesting IM Configuration')
+        print (' -Requesting IM Configuration')
         msg=b'\x02\x73'
         msg=self.send (msg)     
         if msg[-1]==6:
-            print("  IM Configuration Received %s (%s)"%(hex(msg[2]),bin (msg[2])))
+            print("  -IM Configuration Received %s (%s)"%(hex(msg[2]),bin (msg[2])))
         else:
             print ('FAIL: ',)
             for i in msg:
@@ -326,36 +328,36 @@ def main ():
     lighting.connect(HOST, serialPort)
     
     lighting.getInfo()
+    lighting.getConfig()
     
     configFlag=0b01000000
         #        76543210
-        #Bit 7 = 1 Disables automatic linking when the user pushes and holds the SET Button (see Button Event Report49). 
-        #Bit 6 = 1 Puts the IM into Monitor Mode (see About Monitor Mode45in the Notes below). 
+        #Bit 7 = 1 Disables automatic linking when the user pushes and holds the SET Button (see Button Event Report). 
+        #Bit 6 = 1 Puts the IM into Monitor Mode
         #Bit 5 = 1 Disables automatic LED operation by the IM. The host must now control the IMs LED using LED On50 Off51.
         #Bit 4 = 1 Disable host communications Deadman feature (i.e. allow host to delay more than 240 milliseconds between sending bytes to the IM). See IM RS232 Port Settings8
         #Bits 3 - 0 Reserved for internal use. Set these bits to 0.
-    lighting.setConfig(configFlag)
-    lighting.getConfig()
+    #lighting.setConfig(configFlag)
+   
     #lighting.reset()
     
     #lighting.getFirstAllLink()
-    print()
-    pingCmd=b'\x30'
-    onCmd=(b'\x12')
-    offCmd =(b'\x13')
+    #print()
+    #pingCmd=b'\x30'
+    #onCmd=(b'\x12')
+    #offCmd =(b'\x13')
    
-    address=devices.kitchen
-    cmd1=pingCmd
-    cmd2=b'\xff'
-    #lighting.sendInsteonCmd(address, cmd1, cmd2)
+    #address=devices.upstairsBedRm
     
-    address=devices.upstairsBedRm
-    cmd1=pingCmd
-    cmd2=b'\xff'
-    lighting.sendInsteonCmd(address, cmd1, cmd2)
-    lighting.listen()
-    while 1:
-        lighting.listen()
+    #address=devices.kitchen
+    ###address=devices.livingRm
+    #address=devices.lamp2
+    #cmd1=pingCmd
+    #cmd2=b'\xff'
+    #lighting.sendInsteonCmd(address, cmd1, cmd2)
+    #lighting.listen()
+    #while 1:
+    #    lighting.listen()
     
 
 if __name__ == "__main__":

@@ -72,7 +72,7 @@ class Extron:
         try:
             rx = self.s.recv(1024)
         finally:
-            print(rx)            
+            print("timeout")          
             return (rx)
          
           
