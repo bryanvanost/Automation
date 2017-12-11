@@ -68,15 +68,12 @@ class Extron:
     def listentoSerialPort (self):
         print("listening")
         rx=b''
-        try:
-            while True:
-                rx = rx + self.s.recv(128)
-                print(rx)
-                print ('  -Recieved ' + str(len(rx)) + ' character message:',end=' ')
-                for i in rx:
-                    print (hex(i),end=' ')
-        except:
-            print("FAIL")
+        while True:
+            rx = rx + self.s.recv(1024)
+            print(rx)
+            if (len(rx)>10):
+                return (rx)
+         
           
   
     def RelayClose(self,Rly):

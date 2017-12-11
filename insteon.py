@@ -51,7 +51,9 @@ class Insteon:
             return (msg)
         
     def listen(self):
-        self.s.listentoSerialPort()
+        msg=self.s.listentoSerialPort()
+        for i in msg:
+            print (i,)
 
     def reset(self):
         """
