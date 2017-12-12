@@ -10,7 +10,7 @@ class Extron:
         self.s = None
         
     def __del__(self):
-        print("Done")
+        print("Extron Class Closed")
 
     def connect(self,HOST):
         try:
@@ -50,10 +50,10 @@ class Extron:
 
 
     def sendToSerialPort(self,tx):
-        print ('  -Sending ' + str(len(tx)) + ' character message:',end=' ')
-        for i in tx:
-            print (hex(i),end=' ')
-        print()
+        #print ('  -Sending ' + str(len(tx)) + ' character message:',end=' ')
+        #for i in tx:
+        #    print (hex(i),end=' ')
+        #print()
         self.s.sendall(tx)
         
             
