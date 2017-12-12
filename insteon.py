@@ -261,6 +261,7 @@ class Insteon:
         msg=b''
         while True:
             msg=msg+self.s.listenToSerialPort()
+            print(msg)
         
             if ((msg[-1:])==b'\x15'):
                 print ('fail')
@@ -340,12 +341,13 @@ def main ():
         #Bits 3 - 0 Reserved for internal use. Set these bits to 0.
     #lighting.setConfig(configFlag)
    
-    lighting.ping(devices.kitchen)
+    #lighting.ping(devices.kitchen)
     #lighting.ping(devices.wall)
     #lighting.ping(devices.upstairsBedRm)
     #lighting.ping(devices.lamp1)
     #lighting.ping(devices.lamp2)
     lighting.ping(devices.livingRm)
+    print (devices.livingRm)
     
     #lighting.status(devices.kitchen)
     #    lighting.status(devices.wall)
