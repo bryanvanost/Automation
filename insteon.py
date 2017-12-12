@@ -86,6 +86,8 @@ class Insteon:
             print ('downstairs wall')
         elif ((msgOriginator)==b'\x1D\xDE\x9A'):
             print('upstairs bedroom') 
+        elif ((msgOriginator)==b'\x13\x99\xA2'):
+            print('living Room') 
         elif ((msgOriginator)==b'\x0E\xA7\xA6'):
             print('lamp1')  
         elif ((msgOriginator)==b'\x0E\x9A\x17'):
@@ -247,6 +249,8 @@ class Insteon:
             print ('downstairs wall')
         elif ((deviceAddr)==b'\x1D\xDE\x9A'):
             print('upstairs bedroom') 
+        elif ((deviceAddr)==b'\x13\x99\xA2'):
+            print('living Room')  
         elif ((deviceAddr)==b'\x0E\xA7\xA6'):
             print('lamp1')  
         elif ((deviceAddr)==b'\x0E\x9A\x17'):
@@ -346,8 +350,7 @@ def main ():
     #lighting.ping(devices.upstairsBedRm)
     #lighting.ping(devices.lamp1)
     #lighting.ping(devices.lamp2)
-    lighting.ping(devices.livingRm)
-    print (devices.livingRm)
+    #lighting.ping(devices.livingRm)
     
     #lighting.status(devices.kitchen)
     #    lighting.status(devices.wall)
@@ -379,9 +382,9 @@ def main ():
     #lighting.sendInsteonCmd(address, cmd1, cmd2)
     
     
-    #lighting.listen()
-    #while 1:
-    #    lighting.listen()
+    lighting.listen()
+    while 1:
+        lighting.listen()
     
 
 if __name__ == "__main__":
