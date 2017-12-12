@@ -239,7 +239,7 @@ class Insteon:
         sendInsteonStdMsgCmd =b'\x62'
         msgFlag=b'\x0f'
         
-        print(" >Sending Ping to",end='')
+        print(" >Sending Ping to ",end='')
                 
         if ((deviceAddr)==b'\x1D\xDB\xCC'):
             print ('kitchen')
@@ -306,20 +306,18 @@ class Insteon:
         
             if ((msg[-1:])==b'\x15'):
                 print ('fail')
+                break
                 
             elif ((msg)==b"".join([startofIMCmd,sendInsteonStdMsgCmd,deviceAddr,msgFlag,cmd1,cmd2,b'\x06'])):
                 #print ('  <Status command confirmed by PLM')
                 msg=b''
                      
-            if (len(msg)>=11):
+            elif (len(msg)>=11):
                 if (msg[:2]==b'\x02\x50'):
                     if (msg[2:5]==deviceAddr):
                         onlvl=round((int(msg[10])/2.55),2)
                         print ('  <Device is at',onlvl,'%')   
-                        break
-       
-       
-       
+                        break  
        
        
        
@@ -342,18 +340,18 @@ def main ():
         #Bits 3 - 0 Reserved for internal use. Set these bits to 0.
     #lighting.setConfig(configFlag)
    
-    #lighting.ping(devices.kitchen)
+    lighting.ping(devices.kitchen)
     #lighting.ping(devices.wall)
     #lighting.ping(devices.upstairsBedRm)
     #lighting.ping(devices.lamp1)
     #lighting.ping(devices.lamp2)
+    lighting.ping(devices.livingRm)
     
-    while 1:
-        lighting.status(devices.kitchen)
-        lighting.status(devices.wall)
-        lighting.status(devices.upstairsBedRm)
-        lighting.status(devices.lamp1)
-        lighting.status(devices.lamp2)
+    #lighting.status(devices.kitchen)
+    #    lighting.status(devices.wall)
+    #    lighting.status(devices.upstairsBedRm)
+    #    lighting.status(devices.lamp1)
+    #   lighting.status(devices.lamp2)
    
     
     #while True:
