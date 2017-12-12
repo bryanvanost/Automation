@@ -348,12 +348,12 @@ def main ():
     #lighting.ping(devices.lamp1)
     #lighting.ping(devices.lamp2)
     
-    
-    lighting.status(devices.kitchen)
-    lighting.status(devices.wall)
-    lighting.status(devices.upstairsBedRm)
-    lighting.status(devices.lamp1)
-    lighting.status(devices.lamp2)
+    while 1:
+        lighting.status(devices.kitchen)
+        lighting.status(devices.wall)
+        lighting.status(devices.upstairsBedRm)
+        lighting.status(devices.lamp1)
+        lighting.status(devices.lamp2)
    
     
     #while True:
