@@ -181,13 +181,12 @@ class Insteon:
     def setConfig(self,configFlag):
         ## Send 3 byte
         #Rx 4 bytes
-        print ("Setting IM Configuration")       
+        print (" -Setting IM Configuration")       
         msg=b'\x02\x6B' + (bytes([configFlag]))
         self.send (msg)
         msg=self.listen()
         if len(msg)==4 and msg[3]==6:
             print ("  -IM Configuration Set: %s (%s)"%(hex(msg[2]),bin (msg[2])))
-
 
     def unpackAllLinkResponse(self,msg):
         pass
@@ -222,6 +221,12 @@ class Insteon:
         msg=self.send (msg)
   
 
+    def ping(self,deviceAddr):
+        pingCmd=b'\x30'
+        cmd1=pingCmd
+        cmd2=b'\xff'
+        self.sendInsteonCmd(deviceAddr, cmd1, cmd2)
+
 
 def main ():
     HOST='192.168.1.14'
@@ -242,12 +247,11 @@ def main ():
     lighting.setConfig(configFlag)
    
     
-        
-    pingCmd=b'\x30'
-    address=devices.kitchen
-    cmd2=b'\xff'
-    #lighting.sendInsteonCmd(address, pingCmd, cmd2)
+       
+    lighting.ping(devices.kitchen)
    
+   
+    
     while True:
         print("Listening..")
         msg=lighting.listen()
