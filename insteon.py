@@ -5,6 +5,8 @@ import sys
 import time
 
 
+#print (sys.version)
+
 
 
 
@@ -234,28 +236,30 @@ class Insteon:
         msg=(b"".join([startofIMCmd, sendInsteonStdMsgCmd,deviceAddr,msgFlag,cmd1,cmd2]))
         msg=self.send (msg)
           
-  
+    def getDeviceName(self,deviceAddr):
+        if ((deviceAddr)==b'\x1D\xDB\xCC'):
+            return ('kitchen')
+        elif ((deviceAddr)==b'\x1D\xE3\x5B'):
+            return ('downstairs wall')
+        elif ((deviceAddr)==b'\x1D\xDE\x9A'):
+            return('upstairs bedroom') 
+        elif ((deviceAddr)==b'\x13\x99\xA2'):
+            return('living Room')  
+        elif ((deviceAddr)==b'\x0E\xA7\xA6'):
+            return('lamp1')  
+        elif ((deviceAddr)==b'\x0E\x9A\x17'):
+            return('lamp2')  
 
     def ping(self,deviceAddr):
+        start=time.time()
         startofIMCmd=b'\x02'
         sendInsteonStdMsgCmd =b'\x62'
         msgFlag=b'\x0f'
         
-        print(" >Sending Ping to ",end='')
-                
-        if ((deviceAddr)==b'\x1D\xDB\xCC'):
-            print ('kitchen')
-        elif ((deviceAddr)==b'\x1D\xE3\x5B'):
-            print ('downstairs wall')
-        elif ((deviceAddr)==b'\x1D\xDE\x9A'):
-            print('upstairs bedroom') 
-        elif ((deviceAddr)==b'\x13\x99\xA2'):
-            print('living Room')  
-        elif ((deviceAddr)==b'\x0E\xA7\xA6'):
-            print('lamp1')  
-        elif ((deviceAddr)==b'\x0E\x9A\x17'):
-            print('lamp2')  
+        print(" >Sending Ping to ",end='')   
+        print(self.getDeviceName(deviceAddr))
         
+                
         pingCmd=b'\x30'
         cmd1=pingCmd
         cmd2=b'\xff'
@@ -263,9 +267,9 @@ class Insteon:
         self.sendInsteonCmd(deviceAddr, cmd1, cmd2)
        
         msg=b''
+        #TODO put in time out for ping
         while True:
             msg=msg+self.s.listenToSerialPort()
-            print(msg)
         
             if ((msg[-1:])==b'\x15'):
                 print ('fail')
@@ -277,7 +281,8 @@ class Insteon:
             if (len(msg)>=11):
                 if (msg[:2]==b'\x02\x50'):
                     if (msg[2:5]==deviceAddr):
-                        print ('  <Recieved Pink ACK')
+                        delay=time.time()-start
+                        print ('  <Received Ping ACK after',delay,'seconds')
                         break
     
     def status(self,deviceAddr):
@@ -328,6 +333,7 @@ class Insteon:
        
 
 def main ():
+    ##Host='www.vansot.com
     HOST='192.168.1.14'
     serialPort='1'
     print('Inston script running')
@@ -355,8 +361,8 @@ def main ():
     #lighting.status(devices.kitchen)
     #    lighting.status(devices.wall)
     #    lighting.status(devices.upstairsBedRm)
-    #    lighting.status(devices.lamp1)
-    #   lighting.status(devices.lamp2)
+    #lighting.status(devices.lamp1)
+    #lighting.status(devices.lamp2)
    
     
     #while True:
