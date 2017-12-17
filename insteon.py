@@ -294,18 +294,7 @@ class Insteon:
         cmd2=b'\x00'
         
         print(" >Requesting Status from ",end='')
-        
-        if ((deviceAddr)==b'\x1D\xDB\xCC'):
-            print ('kitchen')
-        elif ((deviceAddr)==b'\x1D\xE3\x5B'):
-            print ('downstairs wall')
-        elif ((deviceAddr)==b'\x1D\xDE\x9A'):
-            print('upstairs bedroom') 
-        elif ((deviceAddr)==b'\x0E\xA7\xA6'):
-            print('lamp1')  
-        elif ((deviceAddr)==b'\x0E\x9A\x17'):
-            print('lamp2')  
-        
+        print(self.getDeviceName(deviceAddr))
         
         
         self.sendInsteonCmd(deviceAddr, cmd1, cmd2)
@@ -328,7 +317,29 @@ class Insteon:
                         onlvl=round((int(msg[10])/2.55),2)
                         print ('  <Device is at',onlvl,'%')   
                         break  
-       
+    def set(self,deviceAddr,onLvl):
+        print(deviceAddr,onLvl)
+        start=time.time()
+        startofIMCmd=b'\x02'
+        sendInsteonStdMsgCmd =b'\x62'
+        msgFlag=b'\x0f'
+        
+        print(" >Sending OnCmd to ",end='')   
+        print(self.getDeviceName(deviceAddr))
+        cmd1=b'\x11'
+        cmd2=hex(10)
+        print (str(255).encode)
+        cmd2=b'\x00'
+        print (cmd2)
+        #print (cmd2)
+        #cmd2=b'\xFF'
+        self.sendInsteonCmd(deviceAddr, cmd1, cmd2)
+        
+        msg=b''
+        while True:
+            msg=msg+self.s.listenToSerialPort()
+            print(msg)
+
        
        
 
@@ -361,8 +372,10 @@ def main ():
     #lighting.status(devices.kitchen)
     #    lighting.status(devices.wall)
     #    lighting.status(devices.upstairsBedRm)
-    #lighting.status(devices.lamp1)
-    #lighting.status(devices.lamp2)
+    lighting.status(devices.lamp1)
+    lighting.status(devices.lamp2)
+    lighting.set(devices.lamp1,100)
+    lighting.set(devices.lamp2,100)
    
     
     #while True:
