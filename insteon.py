@@ -313,10 +313,49 @@ class Insteon:
                      
             elif (len(msg)>=11):
                 if (msg[:2]==b'\x02\x50'):
+                    print('Insteon Message',end=' ')
                     if (msg[2:5]==deviceAddr):
+                        print('from',self.getDeviceName(deviceAddr))
                         onlvl=round((int(msg[10])/2.55),2)
                         print ('  <Device is at',onlvl,'%')   
                         break  
+                    
+        def getID(self,deviceAddr):
+            
+            startofIMCmd=b'\x02'
+            sendInsteonStdMsgCmd =b'\x62'
+            msgFlag=b'\x0f'
+            lightStatusRequest=b'\x19'
+            cmd1=lightStatusRequest
+            cmd2=b'\x00'
+            
+            print(" >Requesting Status from ",end='')
+            print(self.getDeviceName(deviceAddr))
+            
+            
+            self.sendInsteonCmd(deviceAddr, cmd1, cmd2)
+    
+            msg=b''
+            while True:
+                msg=msg+self.s.listenToSerialPort()
+            
+                if ((msg[-1:])==b'\x15'):
+                    print ('fail')
+                    break
+                    
+                elif ((msg)==b"".join([startofIMCmd,sendInsteonStdMsgCmd,deviceAddr,msgFlag,cmd1,cmd2,b'\x06'])):
+                    #print ('  <Status command confirmed by PLM')
+                    msg=b''
+                         
+                elif (len(msg)>=11):
+                    if (msg[:2]==b'\x02\x50'):
+                        print('Insteon Message',end=' ')
+                        if (msg[2:5]==deviceAddr):
+                            print('from',self.getDeviceName(deviceAddr))
+                            onlvl=round((int(msg[10])/2.55),2)
+                            print ('  <Device is at',onlvl,'%')   
+                            break  
+            
                     
     def set(self,deviceAddr,onLvl):
         start=time.time()
@@ -324,7 +363,7 @@ class Insteon:
         sendInsteonStdMsgCmd =b'\x62'
         msgFlag=b'\x0f'
         
-        print(" >Sending OnCmd to ",end='')   
+        print(" >Sending Direction to ",end='')   
         print(self.getDeviceName(deviceAddr))
         cmd1=b'\x11'
         if (onLvl==100):
@@ -356,8 +395,61 @@ class Insteon:
                         onlvl=round((int(msg[10])/2.55),2)
                         print ('  <Device is at',onlvl,'%')   
                         break  
+    
 
-       
+    def getOpFlag(self,deviceAddr):
+        start=time.time()
+        startofIMCmd=b'\x02'
+        sendInsteonStdMsgCmd =b'\x62'
+        msgFlag=b'\x0f'
+        
+        print(" >Sending reqeust for Op Flag to ",end='')   
+        print(self.getDeviceName(deviceAddr))
+
+        cmd1=b'\x1F'
+        cmd2=b'\x00'       
+        self.sendInsteonCmd(deviceAddr, cmd1, cmd2)
+        
+        msg=b''
+        while True:
+            msg=msg+self.s.listenToSerialPort()
+            print(msg)
+            
+            
+            if ((msg[-1:])==b'\x15'):
+                print ('fail')
+                break
+                
+            elif ((msg)==b"".join([startofIMCmd,sendInsteonStdMsgCmd,deviceAddr,msgFlag,cmd1,cmd2,b'\x06'])):
+                #print ('  <Status command confirmed by PLM')
+                msg=b''
+                     
+            elif (len(msg)>=11):
+                if (msg[:2]==b'\x02\x50'):
+                    for i in msg:
+                        print (hex(i),end=' ')
+                    opflg=msg[-1]
+                    print(bin(opflg))              
+                    break  
+    
+
+
+
+    def allON(self):
+        
+        self.set(devices.lamp2,100)
+        self.set(devices.kitchen,100)
+        self.set(devices.upstairsBedRm,100)
+        self.set(devices.livingRm,100)
+        self.set(devices.lamp1,100)
+        
+    def allOFF(self):
+        
+        self.set(devices.lamp2,0)
+        self.set(devices.kitchen,0)
+        self.set(devices.upstairsBedRm,0)
+        self.set(devices.livingRm,0)
+        self.set(devices.lamp1,0)
        
 
 def main ():
@@ -369,6 +461,7 @@ def main ():
     lighting.connect(HOST, serialPort)
     lighting.getInfo()
     lighting.getConfig()
+    lighting.getOpFlag(devices.livingRm)
     
     #lighting.reset()
     #configFlag=0b01000000
@@ -385,21 +478,21 @@ def main ():
     #lighting.ping(devices.upstairsBedRm)
     #lighting.ping(devices.lamp1)
     #lighting.ping(devices.lamp2)
-    #lighting.ping(devices.livingRm)
+    lighting.ping(devices.livingRm)
     
     #lighting.status(devices.kitchen)
     #    lighting.status(devices.wall)
     #    lighting.status(devices.upstairsBedRm)
     lighting.status(devices.lamp1)
-    lighting.status(devices.lamp2)
-    lighting.set(devices.lamp1,99)
-    lighting.set(devices.lamp2,99)
+    #lighting.status(devices.lamp2)
+    #lighting.allON()
+    #lighting.allOFF()
     #lighting.set(devices.kitchen,100)
     
-    #while True:
-    #    print("Listening..")
-    #    msg=lighting.listen()
-    #    print(msg)
+    while True:
+        print("Listening..")
+        msg=lighting.listen()
+        print(msg)
    
     
     
