@@ -317,8 +317,8 @@ class Insteon:
                         onlvl=round((int(msg[10])/2.55),2)
                         print ('  <Device is at',onlvl,'%')   
                         break  
+                    
     def set(self,deviceAddr,onLvl):
-        print(deviceAddr,onLvl)
         start=time.time()
         startofIMCmd=b'\x02'
         sendInsteonStdMsgCmd =b'\x62'
@@ -327,18 +327,35 @@ class Insteon:
         print(" >Sending OnCmd to ",end='')   
         print(self.getDeviceName(deviceAddr))
         cmd1=b'\x11'
-        cmd2=hex(10)
-        print (str(255).encode)
-        cmd2=b'\x00'
-        print (cmd2)
-        #print (cmd2)
-        #cmd2=b'\xFF'
+        if (onLvl==100):
+            cmd2=b'\xff'
+        if (0<= onLvl < 100):
+            onLvl=int(onLvl*2.55)
+            cmd2=bytes([onLvl])
+        else:
+            onLvl=b'0'
+        
         self.sendInsteonCmd(deviceAddr, cmd1, cmd2)
         
         msg=b''
         while True:
             msg=msg+self.s.listenToSerialPort()
-            print(msg)
+            #print(msg)
+            
+            if ((msg[-1:])==b'\x15'):
+                print ('fail')
+                break
+                
+            elif ((msg)==b"".join([startofIMCmd,sendInsteonStdMsgCmd,deviceAddr,msgFlag,cmd1,cmd2,b'\x06'])):
+                #print ('  <Status command confirmed by PLM')
+                msg=b''
+                     
+            elif (len(msg)>=11):
+                if (msg[:2]==b'\x02\x50'):
+                    if (msg[2:5]==deviceAddr):
+                        onlvl=round((int(msg[10])/2.55),2)
+                        print ('  <Device is at',onlvl,'%')   
+                        break  
 
        
        
@@ -352,6 +369,7 @@ def main ():
     lighting.connect(HOST, serialPort)
     lighting.getInfo()
     lighting.getConfig()
+    
     #lighting.reset()
     #configFlag=0b01000000
         #        76543210
@@ -374,9 +392,9 @@ def main ():
     #    lighting.status(devices.upstairsBedRm)
     lighting.status(devices.lamp1)
     lighting.status(devices.lamp2)
-    lighting.set(devices.lamp1,100)
-    lighting.set(devices.lamp2,100)
-   
+    lighting.set(devices.lamp1,99)
+    lighting.set(devices.lamp2,99)
+    #lighting.set(devices.kitchen,100)
     
     #while True:
     #    print("Listening..")
