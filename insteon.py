@@ -13,6 +13,7 @@ import time
 class Insteon:
     def __init__(self):
         self.s = None
+        self.msg=b''
         
     def __del__(self):
         print("Insteon Class Closed")
@@ -108,33 +109,70 @@ class Insteon:
         # print("  Firmware Revision: %s"%(hex(msg[7])))
        
         
-    def listen(self):
-        msg=b''
-        #
+    def listen(self,toAddr='',cmd1='',cmd2=''):
+        start=time.time()
+        
+        self.msg=b''
         while True:
-            msg=msg+self.s.listenToSerialPort()
-            if ((msg[-1:])==b'\x06'):
-                return(msg)
+            self.msg=self.msg+self.s.listenToSerialPort()
             
-            elif ((msg[-1:])==b'\x15'):
-                return (msg) 
+            while (False):
+                for i in self.msg:
+                    print(hex(i),end=' ')
+                    print()
             
-            elif ((msg[:3])==b'\x02\x54\x02'):
+            if ((self.msg[-1:])==b'\x15'):
+                print ('FAIL')
+                return (msg)
+            
+            #elif ((msg[-1:])==b'\x06'):
+            #    return(msg)
+            
+             
+            elif ((self.msg[:3])==b'\x02\x54\x02'):
                 print("The SET Button was Tapped")
-                msg=b''
+                self.msg=b''
                 
-            elif ((msg[:3])==b'\x02\x54\x03'):
+            elif ((self.msg[:3])==b'\x02\x54\x03'):
                 print("There was a SET Button Press and Hold for more than three seconds.")
-                msg=b''
+                self.msg=b''
                 
-            elif ((msg[:3])==b'\x02\x54\x04'):
+            elif ((self.msg[:3])==b'\x02\x54\x04'):
                 print("The SET Button was released after a SET Button Press and Hold event was recorded.")
-                msg=b''
-                 
-            elif (len(msg)>=11):
-                if (msg[:2]==b'\x02\x50'):
-                    return(self.unpackStdMsg(msg))
-                    msg=b''
+                self.msg=b''
+                
+            elif ((self.msg)==b"".join([b'\x02',b'\x62',toAddr,b'\x0f',cmd1,cmd2,b'\x06'])):
+                print ('  <Command confirmed by PLM')
+                self.msg=b''
+                    
+            elif (len(self.msg)>=11):
+                if (self.msg[:2]==b'\x02\x50'):
+                    if (self.msg[2:5]==toAddr):
+                        delay=time.time()-start
+                        print ('  <Received Ping ACK after',delay,'seconds')
+                        break
+                    
+            elif (len(self.msg)>=11):
+                if (self.msg[:2]==b'\x02\x50'):
+                    delay=time.time()-start
+                    print('  <' + delay + ': Valid Standard Message Received from',end=" ")
+                    print(self.getDeviceName(msg[2:5]))
+                    
+                    print ('  <Flag', hex(self.msg[8]))
+                                        
+                    if (self.msg[8]==47):
+                        print('  <SD ACK Message')
+                        
+                        
+                    print ('  <Command1', int(self.msg[9]))
+                    print ('  <Command2', int(self.msg[10]))
+        
+                    for i in msg:
+                        print (hex(i),end=' ')
+                    opflg=msg[-1]
+                    print(bin(opflg))              
+                    break  
+
                         
             #elif (len(msg)>1):
             #    print('dd')
@@ -249,14 +287,19 @@ class Insteon:
             return('lamp1')  
         elif ((deviceAddr)==b'\x0E\x9A\x17'):
             return('lamp2')  
+        elif ((deviceAddr)==b'\x43\x6E\xFE'):
+            return('PLM')  
+        else:
+            for i in deviceAddr:
+                print(hex(i))
 
     def ping(self,deviceAddr):
-        start=time.time()
+        
         startofIMCmd=b'\x02'
         sendInsteonStdMsgCmd =b'\x62'
         msgFlag=b'\x0f'
         
-        print(" >Sending Ping to ",end='')   
+        print(" >Sending ping to ",end='')   
         print(self.getDeviceName(deviceAddr))
         
                 
@@ -265,25 +308,9 @@ class Insteon:
         cmd2=b'\xff'
         #send command and listen for a response 
         self.sendInsteonCmd(deviceAddr, cmd1, cmd2)
+        self.listen(deviceAddr, cmd1, cmd2)
        
-        msg=b''
-        #TODO put in time out for ping
-        while True:
-            msg=msg+self.s.listenToSerialPort()
         
-            if ((msg[-1:])==b'\x15'):
-                print ('fail')
-                
-            elif ((msg)==b"".join([startofIMCmd,sendInsteonStdMsgCmd,deviceAddr,msgFlag,cmd1,cmd2,b'\x06'])):
-                #print ('  <Ping command confirmed by PLM')
-                msg=b''
-                     
-            if (len(msg)>=11):
-                if (msg[:2]==b'\x02\x50'):
-                    if (msg[2:5]==deviceAddr):
-                        delay=time.time()-start
-                        print ('  <Received Ping ACK after',delay,'seconds')
-                        break
     
     def status(self,deviceAddr):
         startofIMCmd=b'\x02'
@@ -293,7 +320,7 @@ class Insteon:
         cmd1=lightStatusRequest
         cmd2=b'\x00'
         
-        print(" >Requesting Status from ",end='')
+        print(" >Requesting status from ",end='')
         print(self.getDeviceName(deviceAddr))
         
         
@@ -380,7 +407,7 @@ class Insteon:
         sendInsteonStdMsgCmd =b'\x62'
         msgFlag=b'\x0f'
         
-        print(" >Sending Direction to ",end='')   
+        print(" >Sending direction to ",end='')   
         print(self.getDeviceName(deviceAddr))
         cmd1=b'\x11'
         if (onLvl==100):
@@ -448,7 +475,6 @@ class Insteon:
                     opflg=msg[-1]
                     print(bin(opflg))              
                     break  
-    
 
 
 
@@ -468,6 +494,52 @@ class Insteon:
         #self.set(devices.livingRm,0)
         self.set(devices.lamp1,0)
        
+    def peek(self,toAddr):
+        setAddrMSB=b'\20'
+        
+        peekOneByte=b'\x2B'
+        cmd1=setAddrMSB
+        cmd2=b'\x00'
+        
+        print(" >Peek ",end='')   
+        print(self.getDeviceName(toAddr))
+
+              
+        self.sendInsteonCmd(toAddr, cmd1, cmd2)
+        
+        msg=b''
+        while True:
+            msg=msg+self.s.listenToSerialPort()
+            if ((msg[-1:])==b'\x15'):
+                print ('fail')
+                break
+                
+            elif ((msg)==b"".join([b'\x02',b'\x62',toAddr,b'\x0f',cmd1,cmd2,b'\x06'])):
+                print ('  <Command confirmed by PLM')
+                msg=b''
+                
+            elif (len(msg)>=11):
+                if (msg[:2]==b'\x02\x50'):
+                    print('  <Valid Standard Message Received from',end=" ")
+                    print(self.getDeviceName(msg[2:5]))
+                    
+                    print ('  <Flag', hex(msg[8]))
+                                        
+                    if (msg[8]==47):
+                        print('  <SD ACK Message')
+                        
+                        
+                    print ('  <Command1', int(msg[9]))
+                    print ('  <Command2', int(msg[10]))
+        
+                    for i in msg:
+                        print (hex(i),end=' ')
+                    opflg=msg[-1]
+                    print(bin(opflg))              
+                    break  
+
+
+
 
 def main ():
     ##Host='www.vansot.com
@@ -476,8 +548,8 @@ def main ():
     print('Inston script running')
     lighting=Insteon()
     lighting.connect(HOST, serialPort)
-    lighting.getInfo()
-    lighting.getConfig()
+    #lighting.getInfo()
+    #lighting.getConfig()
     #lighting.getOpFlag(devices.livingRm)
     
     #lighting.reset()
@@ -490,9 +562,9 @@ def main ():
         #Bits 3 - 0 Reserved for internal use. Set these bits to 0.
     #lighting.setConfig(configFlag)
    
-    #lighting.ping(devices.kitchen)
-    #lighting.ping(devices.wall)
-    #lighting.ping(devices.upstairsBedRm)
+    lighting.ping(devices.kitchen)
+    lighting.ping(devices.wall)
+    lighting.ping(devices.upstairsBedRm)
     #lighting.ping(devices.lamp1)
     #lighting.ping(devices.lamp2)
     #lighting.ping(devices.livingRm)
@@ -500,21 +572,20 @@ def main ():
     #lighting.status(devices.kitchen)
     #    lighting.status(devices.wall)
     #    lighting.status(devices.upstairsBedRm)
-    lighting.getID(devices.lamp1)
-    lighting.getID(devices.lamp2)
-    lighting.getID(devices.kitchen)
-    lighting.getID(devices.wall)
-    lighting.getID(devices.livingRm)
+    #lighting.getID(devices.lamp1)
+    #lighting.getID(devices.lamp2)
+    #lighting.getID(devices.kitchen)
+    #lighting.getID(devices.wall)
+    #lighting.getID(devices.livingRm)
     #lighting.status(devices.lamp2)
-    lighting.allON()
+    
+    lighting.peek(devices.lamp1)
+    
+    
+    #lighting.allON()
     #lighting.allOFF()
     #lighting.set(devices.kitchen,100)
     
-    while True:
-        print("Listening..")
-        msg=lighting.listen()
-        print(msg)
-   
     
     
     #lighting.getFirstAllLink()
@@ -532,10 +603,6 @@ def main ():
     #cmd2=b'\xff'
     #lighting.sendInsteonCmd(address, cmd1, cmd2)
     
-    
-    lighting.listen()
-    while 1:
-        lighting.listen()
     
 
 if __name__ == "__main__":
