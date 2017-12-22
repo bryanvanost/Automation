@@ -43,7 +43,7 @@ class Extron:
             PORT = 2000 + int(serialPort)
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.connect((HOST, PORT))
-            print (self.s)
+            #print (self.s)
 
         except:
             print ("Failed to Connect to Serial Port")

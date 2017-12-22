@@ -24,14 +24,10 @@ class Insteon:
             #Connetc to IPL250
             #HOST is the IP devices in sting
             #PORT is the serial port {1,2..} in string
-            #extron.connect(
             self.s=extron.Extron()
             self.s.connectToSerialPort(HOST, serialPort)
-            print (self.s)
-            #Extron.openSerialPort(HOST,PORT)
 
             print ('Connected to PLM ' + HOST )
-            #self.getIMInfo()
         except:
             print ("Failed to Connect to IPL")
 
