@@ -1,65 +1,39 @@
-'''
-Created on Dec 20, 2017
 
-@author: bryanvanost
-'''
+#!/usr/bin/env python
 
-import extron
-import sys
+import serial
+import struct
 import time
 
 
-class Scale(object):
-    '''
-    classdocs
-    '''
+SERIALPORT = "/dev/ttyUSB0"
+BAUDRATE = 9600
+#PS60 communicates at 9600 baud and has Sevin Bits
+scale= serial.Serial(SERIALPORT, BAUDRATE,timeout=.05,bytesize=7,parity='E')
 
+if scale.isOpen():
+    print(scale)
+    scale.flushInput() #flush input buffer, discarding all its contents
+    scale.flushOutput()#flush output buffer, aborting current output
+    print("ready")
+    #H==72==\x48
+    #Reqest high resolution weight data by sending 'H', 'L' is Standard Weight, 'K' is Metric Weight 
+    getWeight=b'K'
 
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        self.s = None
-        self.msg=b''
-        
-        
-    def __del__(self):
-        print("Insteon Class Closed")
-        
-    def connect(self,HOST,PORT):
+    while True:
         try:
-
-            #Connetc to IPL250
-            #HOST is the IP devices in sting
-            #PORT is the serial port {1,2..} in string
-            self.s=extron.Extron()
-            self.s.connectToSerialPort(HOST, PORT)
-            
-            #print(self.s.listenToSerialPort())
-
-            print ('Connected to ' + HOST )
+            scale.write(getWeight)
+            #read one response
+            response = scale.read(8)
+            #check for full message; 8 characters starting with STX ending with CR
+            if (len(response)==8):
+                if (response[0]==2):
+                    if (response[7]==13):
+                        w=''
+                        for i in response[1:7]:
+                            w+=chr(i)
+                        weight=float(w)
+                        print(time.time(),weight,'Kg') 
         except:
-            print ("Failed to Connect to IPL")
-        
-    def getWeight(self):
-        msg=b'\x48'
-        self.s.sendToSerialPort(msg)
-        print(self.s.listenToSerialPort())
-        
-        
-def main ():
-    ##Host='www.vansot.com
-    HOST='192.168.1.13'
-    serialPort='1'
-    print('Start Scale Module')
-    PS50=Scale()
-    PS50.connect(HOST, serialPort)
-    PS50.getWeight()
-    
-    
-    
-    
-if __name__ == "__main__":
-    main()
-else:
-    print ('Scale Module Imported')
+            print('fail')
+    scale.close()
