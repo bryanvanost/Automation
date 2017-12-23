@@ -2,7 +2,7 @@
 
 
 import time
-
+location='/testfile.txt'
 def record(msg):
     eventtime=time.asctime( time.localtime(time.time()) )
     print (msg)
