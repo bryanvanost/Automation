@@ -9,8 +9,8 @@ class Extron:
     def __init__(self):
         self.s = None
         
-    def __del__(self):
-        print("Extron Class Closed")
+    #def __del__(self):
+        #print("Extron Class Closed")
 
     def connect(self,HOST):
         try:
@@ -22,9 +22,14 @@ class Extron:
             #print(received)
             if(received[2:68]==str("(c) Copyright 2009, Extron Electronics, IPL 250, V1.15, 60-1026-81")):
                 print ("Connected to IPL250 @ " + HOST +":" + str(PORT))
-            if(received[2:68]==str("(c) Copyright 2009, Extron Electronics, IPL T S2, V1.15, 60-544-81")):
+            elif(received[2:68]==str("(c) Copyright 2009, Extron Electronics, IPL T S2, V1.15, 60-544-81")):
                 print ("Connected to IPL T S2 @ " + HOST +":" + str(PORT))
-            print(self.s)
+            elif(received[2:68]==str("(c) Copyright 2013, Extron Electronics, IPL T S4, V1.17, 60-544-03")):
+                print ("Connected to IPL T S4 @ " + HOST +":" + str(PORT))
+            else:
+                print (received)
+                
+            #print(self.s)
         except:
             print ("Failed to Connect to IPL")
 
@@ -88,7 +93,7 @@ class Extron:
                 print ("Relay "+ str(Rly) + " is open")
 
         except:
-            print ("Realy " + Rly + "Failed to OFF")
+            print ("Relay " + Rly + "Failed to OFF")
 
 
 
@@ -161,13 +166,21 @@ def testRly():
     
 def main():
     print('Extron Script Started')
-    print('Test Connection to all devices')
+    
     #testRly()
+    
+    serial1Addr='192.168.1.15' 
+    #Control_IPL-Laundry
     IPL1Addr='192.168.1.14' 
-    IPL2Addr='192.168.1.13' 
+    #Control_IPL-Media
+    IPL2Addr='192.168.1.13'
+    serial1=Extron() 
     IPL1=Extron()
     IPL2=Extron()
     
+    print('Test Connection to all devices')
+    serial1.connect (serial1Addr)
+    IPL1.connect (IPL1Addr)
     IPL2.connect (IPL2Addr)
     #Power
     #IPL2.sendIRmsg(1)
@@ -175,16 +188,13 @@ def main():
     #Menu
     #IPL2.sendIRmsg(25)
     #Source
-    IPL2.sendIRmsg(47)
-    IPL1.connectToSerialPort(IPL1Addr,1)
-    msg=b'\x02\x60'
-    rx=IPL1.sendToSerialPort(msg)
-    print (rx)
+    #IPL2.sendIRmsg(47)
+    
     #for i in range (1,100):
     #    print(i,)
     #    print(IPL2.getIRcommandInfo(0, i))
    
-    
+    IPL2.close()
     IPL2.close()
     
 
