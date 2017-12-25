@@ -4,7 +4,7 @@ import socket
 import time
 import eventlog
 #import insteon
-#import extron
+import extron
 #import PDU
 #TEST
 
@@ -55,9 +55,9 @@ def interpret (data):
         data=data.decode("utf-8")
         if (data[:2]=='on'):
             print ("      ON")
-            #IPL_A = IPL()
-            #IPL_A.connect('192.168.1.13')
-            #IPL_A.sendIRmsg(1) 
+            IPL_A = extron.Extron()
+            IPL_A.connect('192.168.1.13')
+            IPL_A.sendIRmsg(1)
         if (data[:7]=='off'):
             print ("       OFF")
 
