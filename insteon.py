@@ -541,7 +541,7 @@ def main ():
     ##Host='www.vansot.com
     HOST='192.168.1.14'
     serialPort='1'
-    print('Inston script running')
+    print('Insteon script running')
     lighting=Insteon()
     lighting.connect(HOST, serialPort)
     #lighting.getInfo()

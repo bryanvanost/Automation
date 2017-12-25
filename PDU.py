@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import eventlog
+import time
 
 class PDU:
     def __init__(self):
@@ -81,6 +82,8 @@ class PDU:
 
 def main():
     print("start PDU")
+    pdu1=PDU()
+    pdu1.connect(HOST, PORT)
 
 
 
@@ -88,4 +91,4 @@ def main():
 if __name__ == '__main__':
         main()
 else:
-    eventlog.record("PDU Module Improted")
+    eventlog.record("PDU Module Imported")
