@@ -14,7 +14,7 @@ class Insteon:
     def __init__(self):
         self.s = None
         self.msg=b''
-        
+
     def __del__(self):
         print("Insteon Class Closed")
 
@@ -45,18 +45,18 @@ class Insteon:
         try:
             #msg = bytes.fromhex(msg)
             self.s.sendToSerialPort(msg)
-            
+
         except:
             print ("  -Failed to Send to Serial Port")
-        
+
     def unpackStdMsg(self,msg):         
         msgOriginator=msg[2:5]
         msgAdr=msg[6:8]
         cmd1=msg[9]
         cmd2=msg[10]
-        
+
         eventtime=time.asctime( time.localtime(time.time()) )
-        
+
         print(eventtime + ": Received ",end='')
         #b'\x030'
         if (cmd1==48):
@@ -76,9 +76,9 @@ class Insteon:
             print('unk..',end='')
             print(hex(cmd1),end=' ')
             print(hex(cmd2),end='')
-            
+
         print(" from ",end='')
-        
+
         if ((msgOriginator)==b'\x1D\xDB\xCC'):
             print ('kitchen')
         elif ((msgOriginator)==b'\x1D\xE3\x5B'):

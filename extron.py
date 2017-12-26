@@ -8,7 +8,7 @@ import time
 class Extron:
     def __init__(self):
         self.s = None
-        
+
     #def __del__(self):
         #print("Extron Class Closed")
 
@@ -21,11 +21,11 @@ class Extron:
             received = str(self.s.recv(128), "utf-8")
             #print(received)
             if(received[2:68]==str("(c) Copyright 2009, Extron Electronics, IPL 250, V1.15, 60-1026-81")):
-                print ("Connected to IPL250 @ " + HOST +":" + str(PORT))
+                eventlog.record ("Connected to IPL250 @ " + HOST +":" + str(PORT))
             elif(received[2:68]==str("(c) Copyright 2009, Extron Electronics, IPL T S2, V1.15, 60-544-81")):
-                print ("Connected to IPL T S2 @ " + HOST +":" + str(PORT))
+                eventlog.record ("Connected to IPL T S2 @ " + HOST +":" + str(PORT))
             elif(received[2:68]==str("(c) Copyright 2013, Extron Electronics, IPL T S4, V1.17, 60-544-03")):
-                print ("Connected to IPL T S4 @ " + HOST +":" + str(PORT))
+                eventlog.record ("Connected to IPL T S4 @ " + HOST +":" + str(PORT))
             else:
                 print (received)
                 
@@ -205,4 +205,5 @@ def main():
 if __name__ == "__main__":
     main()
 else:
-    eventlog.record ("Extron Module Imported")
+    pass
+    #eventlog.record ("Extron Module Imported")

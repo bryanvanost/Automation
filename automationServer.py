@@ -3,7 +3,7 @@
 import socket
 import time
 import eventlog
-#import insteon
+import insteon
 import extron
 #import PDU
 #TEST
@@ -17,7 +17,6 @@ def startServer():
     PORT = 47808
     server_address = (HOST, PORT)
     eventlog.record('Starting Automation Server on %s port %s' % server_address)
-    
     sock.bind(server_address)
 
     # Listen for incoming connections
@@ -45,6 +44,7 @@ def startServer():
                     break
         finally:
             # Clean up the connection
+            eventlog.record('Shut Down Automation Server')
             connection.close()
 
 def interpret (data):
@@ -58,8 +58,17 @@ def interpret (data):
             IPL_A = extron.Extron()
             IPL_A.connect('192.168.1.13')
             IPL_A.sendIRmsg(1)
-        if (data[:7]=='off'):
+        elif (data[:4]=='tree'):
             print ("       OFF")
+            HOST='192.168.1.14'
+            serialPort='1'
+            print('Insteon script running')
+            lighting=Insteon()
+            lighting.connect(HOST, serialPort)
+
+
+        else:
+            print('UNK:',data)
 
     except:
         print("Unable to interpret command")
