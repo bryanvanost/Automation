@@ -85,7 +85,7 @@ class Insteon:
             print ('downstairs wall')
         elif ((msgOriginator)==b'\x1D\xDE\x9A'):
             print('upstairs bedroom') 
-        elif ((msgOriginator)==b'\x13\x99\xA2'):
+        elif ((msgOriginator)==b'\x49\xB4\xB4'):
             print('living Room') 
         elif ((msgOriginator)==b'\x0E\xA7\xA6'):
             print('lamp1')  
@@ -277,7 +277,7 @@ class Insteon:
             return ('downstairs wall')
         elif ((deviceAddr)==b'\x1D\xDE\x9A'):
             return('upstairs bedroom') 
-        elif ((deviceAddr)==b'\x13\x99\xA2'):
+        elif ((deviceAddr)==b'\x49\xB4\xB4'):
             return('living Room')  
         elif ((deviceAddr)==b'\x0E\xA7\xA6'):
             return('lamp1')  
@@ -475,20 +475,20 @@ class Insteon:
 
 
     def allON(self):
-        
+        self.set(devices.lamp1,100)
         self.set(devices.lamp2,100)
         self.set(devices.kitchen,100)
         self.set(devices.upstairsBedRm,100)
-        #self.set(devices.livingRm,100)
-        self.set(devices.lamp1,100)
+        self.set(devices.livingRm,100)
+        
         
     def allOFF(self):
-        
+        self.set(devices.lamp1,0)
         self.set(devices.lamp2,0)
         self.set(devices.kitchen,0)
         self.set(devices.upstairsBedRm,0)
-        #self.set(devices.livingRm,0)
-        self.set(devices.lamp1,0)
+        self.set(devices.livingRm,0)
+        
        
     def peek(self,toAddr):
         setAddrMSB=b'\20'
@@ -558,24 +558,31 @@ def main ():
         #Bits 3 - 0 Reserved for internal use. Set these bits to 0.
     #lighting.setConfig(configFlag)
    
-    lighting.ping(devices.kitchen)
-    lighting.ping(devices.wall)
-    lighting.ping(devices.upstairsBedRm)
+    #lighting.ping(devices.kitchen)
+    #lighting.ping(devices.wall)
+    #lighting.ping(devices.upstairsBedRm)
+    #lighting.ping(devices.livingRm)
     #lighting.ping(devices.lamp1)
     #lighting.ping(devices.lamp2)
     #lighting.ping(devices.livingRm)
+    #lighting.ping(devices.remote1)
     
     #lighting.status(devices.kitchen)
     #    lighting.status(devices.wall)
     #    lighting.status(devices.upstairsBedRm)
+    
     #lighting.getID(devices.lamp1)
     #lighting.getID(devices.lamp2)
     #lighting.getID(devices.kitchen)
     #lighting.getID(devices.wall)
     #lighting.getID(devices.livingRm)
+    #lighting.getID(devices.upstairsBedRm)
     #lighting.status(devices.lamp2)
     
-    lighting.peek(devices.lamp1)
+    #lighting.peek(devices.lamp1)
+    while True:
+        lighting.getID(devices.livingRm)
+        
     
     
     #lighting.allON()
