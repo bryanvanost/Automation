@@ -284,10 +284,13 @@ class Insteon:
         elif ((deviceAddr)==b'\x0E\x9A\x17'):
             return('lamp2')  
         elif ((deviceAddr)==b'\x43\x6E\xFE'):
-            return('PLM')  
+            return('PLM') 
+        elif ((deviceAddr)==b'\x49\xB4\xCC'):
+            return('MasterBath') 
         else:
             for i in deviceAddr:
-                print(hex(i))
+                print(hex(i), end=' ')
+            return('!!!Add device to getDeviceName!!!')
 
     def ping(self,deviceAddr):
         
@@ -351,7 +354,7 @@ class Insteon:
         cmd1=getID
         cmd2=b'\x00'
             
-        print(" >Requesting ID from ",end='')
+        print(" >Requesting ID from ",end=' ')
         print(self.getDeviceName(deviceAddr))
             
         self.sendInsteonCmd(deviceAddr, cmd1, cmd2)
@@ -581,7 +584,7 @@ def main ():
     
     #lighting.peek(devices.lamp1)
     while True:
-        lighting.getID(devices.livingRm)
+        lighting.getID(devices.masterBath)
         
     
     
