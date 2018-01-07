@@ -104,15 +104,40 @@ class Insteon:
         #print("  Device Category: %s %s"%(hex(msg[5]),hex(msg[6])))
         # print("  Firmware Revision: %s"%(hex(msg[7])))
        
+       
+    def listen2(self):
+        start=time.time()
         
+        self.msg=b''
+        while True:
+            self.msg=self.msg+self.s.listenToSerialPort()
+                        
+            print('')
+            for i in self.msg:
+                print(hex(i),end=' ')
+                
+            if (self.msg[:2]==b'\x02\x50'):
+                delay=str(time.time())
+                print('  < Valid Standard Message Received from',end=" ")
+                print(self.getDeviceName(msg[2:5]))
+                    
+                print ('  <Flag', hex(self.msg[8]))
+                                        
+                if (self.msg[8]==47):
+                   print('  <SD ACK Message')
+    
+        
+    
+    
     def listen(self,toAddr='',cmd1='',cmd2=''):
         start=time.time()
         
         self.msg=b''
         while True:
             self.msg=self.msg+self.s.listenToSerialPort()
-            
-            while (False):
+                        
+            if (True):
+                print('d')
                 for i in self.msg:
                     print(hex(i),end=' ')
                     print()
@@ -547,6 +572,7 @@ def main ():
     print('Insteon script running')
     lighting=Insteon()
     lighting.connect(HOST, serialPort)
+    
     #lighting.getInfo()
     #lighting.getConfig()
     #lighting.getOpFlag(devices.livingRm)
@@ -584,7 +610,7 @@ def main ():
     
     #lighting.peek(devices.lamp1)
     while True:
-        lighting.getID(devices.masterBath)
+        lighting.listen2()
         
     
     
