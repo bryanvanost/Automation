@@ -24,10 +24,14 @@ if scale.isOpen():
         try:
             scale.write(getWeight)
             #read one response
-            response = scale.read(8)
+            response = scale.read(10)
             #check for full message; 8 characters starting with STX ending with CR
+            for i in response:
+                print(hex(i))
             if (len(response)==8):
+                print (response[0])
                 if (response[0]==2):
+                    print (response[7])
                     if (response[7]==13):
                         w=''
                         for i in response[1:7]:
