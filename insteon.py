@@ -140,16 +140,27 @@ class Insteon:
                             print('G', end=' ')   
                         
     
-                        if  ((self.msg[9])==17): 
-                            print('quick press') 
+                        if  ((self.msg[9])==17 ): 
+                            print('quick press (w/Green LED)') 
+                        elif  ((self.msg[9])==18 ): 
+                            print('double press (w/Green LED)') 
                         elif  ((self.msg[9])==19): 
-                            print('quick release')
+                            print('quick press (w/Red LED)')
+                        elif  ((self.msg[9])==20): 
+                            print('double press (w/Red LED)')
+                        elif  ((self.msg[9])==20): 
+                            print('double press (w/Red LED)')
+                        elif  ((self.msg[9])==21): 
+                            print('quick press (w/Red LED)')
                         elif  ((self.msg[9])==23): 
                             print('long press') 
                         elif  ((self.msg[9])==24): 
                             print('long release') 
                         else:
                             print("no idea")
+                            print (self.msg[9])
+                            for i in self.msg:
+                                print(hex(i),end=' ')
                     self.msg=self.msg[11:]
                     
     
