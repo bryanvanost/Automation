@@ -106,25 +106,52 @@ class Insteon:
        
        
     def listen2(self):
-        start=time.time()
         
         self.msg=b''
         while True:
             self.msg=self.msg+self.s.listenToSerialPort()
-                        
-            print('')
-            for i in self.msg:
-                print(hex(i),end=' ')
-                
+            #if (len(self.msg)>0):            
+            #    print('')
+            #    for i in self.msg:
+            #        print(hex(i),end=' ')
+                                
             if (self.msg[:2]==b'\x02\x50'):
-                delay=str(time.time())
-                print('  < Valid Standard Message Received from',end=" ")
-                print(self.getDeviceName(msg[2:5]))
+                if (len(self.msg)>=11):
+                    eventtime=time.asctime( time.localtime(time.time()) )
+                    print(eventtime, end='')
+                    print(':', self.getDeviceName(self.msg[2:5]), end=' ')
+                    if ((self.msg[2:5])==b'\x44\x8C\x6B'):
+                        print('Button', end=' ')
+                        if((self.msg[7])==1):
+                            print('B', end=' ')
+                        elif((self.msg[7])==2):
+                            print('A', end=' ')
+                        elif((self.msg[7])==3):
+                            print('D', end=' ')
+                        elif((self.msg[7])==4):
+                            print('C', end=' ')
+                        elif((self.msg[7])==5):
+                            print('F', end=' ')
+                        elif((self.msg[7])==6):
+                            print('E', end=' ')
+                        elif((self.msg[7])==7):
+                            print('H', end=' ')
+                        elif((self.msg[7])==8):
+                            print('G', end=' ')   
+                        
+    
+                        if  ((self.msg[9])==17): 
+                            print('quick press') 
+                        elif  ((self.msg[9])==19): 
+                            print('quick release')
+                        elif  ((self.msg[9])==23): 
+                            print('long press') 
+                        elif  ((self.msg[9])==24): 
+                            print('long release') 
+                        else:
+                            print("no idea")
+                    self.msg=self.msg[11:]
                     
-                print ('  <Flag', hex(self.msg[8]))
-                                        
-                if (self.msg[8]==47):
-                   print('  <SD ACK Message')
     
         
     
@@ -312,6 +339,8 @@ class Insteon:
             return('PLM') 
         elif ((deviceAddr)==b'\x49\xB4\xCC'):
             return('MasterBath') 
+        elif ((deviceAddr)==b'\x44\x8C\x6B'):
+            return('Remote1')
         else:
             for i in deviceAddr:
                 print(hex(i), end=' ')
