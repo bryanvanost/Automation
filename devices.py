@@ -9,5 +9,4 @@ upstairsBedRm=b'\x1D\xDE\x9A'
 livingRm=b'\x49\xB4\xB4'
 remote1=b'\x44\x8C\x6B'
 masterBath=b'\x49\xB4\xCC'
-#1 failing
-##b'\x13\x99\xA2'
+closet1=b'\x13\x99\xA2'

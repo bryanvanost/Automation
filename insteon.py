@@ -117,10 +117,11 @@ class Insteon:
                                 
             if (self.msg[:2]==b'\x02\x50'):
                 if (len(self.msg)>=11):
-                    eventtime=time.asctime( time.localtime(time.time()) )
-                    print(eventtime, end='')
-                    print(':', self.getDeviceName(self.msg[2:5]), end=' ')
-                    if ((self.msg[2:5])==b'\x44\x8C\x6B'):
+                    #if ((self.msg[2:5])==b'\x44\x8C\x6B'):
+                    if (self.msg[2:7]==b'\x44\x8C\x6B\x00\x00'):
+                        eventtime=time.asctime( time.localtime(time.time()) )
+                        print(eventtime, end='')
+                        print(':', self.getDeviceName(self.msg[2:5]), end=' ')
                         print('Button', end=' ')
                         if((self.msg[7])==1):
                             print('B', end=' ')
@@ -146,8 +147,6 @@ class Insteon:
                             print('double press (w/Green LED)') 
                         elif  ((self.msg[9])==19): 
                             print('quick press (w/Red LED)')
-                        elif  ((self.msg[9])==20): 
-                            print('double press (w/Red LED)')
                         elif  ((self.msg[9])==20): 
                             print('double press (w/Red LED)')
                         elif  ((self.msg[9])==21): 
@@ -352,6 +351,8 @@ class Insteon:
             return('MasterBath') 
         elif ((deviceAddr)==b'\x44\x8C\x6B'):
             return('Remote1')
+        elif ((deviceAddr)==b'\x13\x99\xA2'):
+            return('Office Closet')
         else:
             for i in deviceAddr:
                 print(hex(i), end=' ')
@@ -630,6 +631,7 @@ def main ():
     #lighting.ping(devices.kitchen)
     #lighting.ping(devices.wall)
     #lighting.ping(devices.upstairsBedRm)
+    lighting.ping(devices.closet1)
     #lighting.ping(devices.livingRm)
     #lighting.ping(devices.lamp1)
     #lighting.ping(devices.lamp2)
@@ -647,6 +649,7 @@ def main ():
     #lighting.getID(devices.livingRm)
     #lighting.getID(devices.upstairsBedRm)
     #lighting.status(devices.lamp2)
+    lighting.getID(devices.closet1)
     
     #lighting.peek(devices.lamp1)
     while True:
