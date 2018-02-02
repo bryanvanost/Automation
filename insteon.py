@@ -334,7 +334,7 @@ class Insteon:
           
     def getDeviceName(self,deviceAddr):
         if ((deviceAddr)==b'\x1D\xDB\xCC'):
-            return ('kitchen')
+            return ('kitchenPendants')
         elif ((deviceAddr)==b'\x1D\xE3\x5B'):
             return ('downstairs wall')
         elif ((deviceAddr)==b'\x1D\xDE\x9A'):
@@ -353,6 +353,10 @@ class Insteon:
             return('Remote1')
         elif ((deviceAddr)==b'\x13\x99\xA2'):
             return('Office Closet')
+        elif ((deviceAddr)==b'\x4A\x9E\x61'):
+            return('Hall')
+        elif ((deviceAddr)==b'\x4A\x98\x0D'):
+            return('Kitchen')
         else:
             for i in deviceAddr:
                 print(hex(i), end=' ')
@@ -631,7 +635,7 @@ def main ():
     #lighting.ping(devices.kitchen)
     #lighting.ping(devices.wall)
     #lighting.ping(devices.upstairsBedRm)
-    lighting.ping(devices.closet1)
+    
     #lighting.ping(devices.livingRm)
     #lighting.ping(devices.lamp1)
     #lighting.ping(devices.lamp2)
@@ -649,12 +653,11 @@ def main ():
     #lighting.getID(devices.livingRm)
     #lighting.getID(devices.upstairsBedRm)
     #lighting.status(devices.lamp2)
-    lighting.getID(devices.closet1)
+    lighting.ping(devices.kitchen)
+    lighting.getID(devices.kitchen)
     
     #lighting.peek(devices.lamp1)
-    while True:
-        lighting.listen2()
-        
+    
     
     
     #lighting.allON()
